@@ -21,7 +21,7 @@
 
     <!-- Modal -->
     <div class="modal fade" id="booking-details" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-labelledby="BookingLabel" aria-hidden="true">
+        aria-labelledby="BookingLabel">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -63,15 +63,15 @@
 
         $(document).ready(function () {
             const bookingList = $("#my-bookings");
-            bookings.forEach(b => {
+            bookings.forEach(booking => {
                 bookingList.append(`
           <div class="col-md-6 mb-3">
-            <div class="card booking-card" data-id="${b.id}" style="cursor:pointer;">
+            <div class="card booking-card" data-id="${booking.id}" style="cursor:pointer;">
               <div class="card-body">
-                <h5 class="card-title">${b.departure} ➝ ${b.arrival}</h5>
-                <p class="card-text">Passenger: ${b.passenger}</p>
-                <p class="card-text">Date: ${b.date}</p>
-                <button class="btn btn-primary btn-sm view-detail" data-id="${b.id}">View Details</button>
+                <h5 class="card-title">${booking.departure} ➝ ${booking.arrival}</h5>
+                <p class="card-text">Passenger: ${booking.passenger}</p>
+                <p class="card-text">Date: ${booking.date}</p>
+                <button class="btn btn-primary btn-sm view-detail" data-id="${booking.id}">View Details</button>
               </div>
             </div>
           </div>
@@ -81,7 +81,7 @@
             // Show booking details in modal
             $(document).on("click", ".view-detail", function () {
                 const bookingId = $(this).data("id");
-                const booking = bookings.find(b => b.id === bookingId);
+                const booking = bookings.find(booking => booking.id === bookingId);
 
                 $("#booking-details-body").html(`
                   <p><strong>Passenger:</strong> ${booking.passenger}</p>
