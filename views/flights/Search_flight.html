@@ -35,11 +35,19 @@
     <form id="searchForm" class="row g-3 mb-4">
       <div class="col-md-4">
         <label for="origin" class="form-label">Origin</label>
-        <input type="text" id="origin" class="form-control" placeholder="ex: Manila" required>
+        <select id="origin" class="form-select" required>
+          <option value="">Select Origin</option>
+          <option value="NAIA">NAIA</option>
+          <option value="Clark">Clark</option>
+          <option value="Cebu">Cebu</option>
+          <option value="Davao">Davao</option>
+        </select>
       </div>
       <div class="col-md-4">
         <label for="destination" class="form-label">Destination</label>
-        <input type="text" id="destination" class="form-control" placeholder="ex: Tokyo" required>
+        <select id="destination" class="form-select" required>
+          <option value="">Select Destination</option>
+        </select>
       </div>
       <div class="col-md-4">
         <label for="departure" class="form-label">Departure Date</label>
@@ -71,27 +79,43 @@
     </div>
   </div>
   <script>
-    $(document).ready(function(){$("#searchForm").on("submit", function(e){
-        e.preventDefault();
+    const destinations = {
+      "NAIA": ["Tokyo", "Singapore", "Hong Kong"],
+      "Clark": ["Manila", "Seoul", "Bangkok"],
+      "Cebu": ["Manila", "New Zealand", "Beijing"],
+      "Davao": ["Manila", "Taipei", "Seoul"]
+    };
 
-        let origin = $("#origin").val().trim();
-        let destination = $("#destination").val().trim();
-        let departure = $("#departure").val();
-        let ret = $("#return").val() || "N/A";
-        let passengers = parseInt($("#passengers").val());
-        let baseFare = 1000;
-        let totalPrice = baseFare * passengers;
+    $("#origin").on("change", function() {
+      const origin = $(this).val();
+      const destSelect = $("#destination");
+      destSelect.empty().append('<option value="">Select Destination</option>');
 
-        $("#SOrigin").text(origin);
-        $("#SDestination").text(destination);
-        $("#SDeparture").text(departure);
-        $("#SReturn").text(ret);
-        $("#SPassengers").text(passengers);
-        $("#SPrice").text(totalPrice.toLocaleString());
-        $("#summary").removeClass("d-none");
-      });
+      if (destinations[origin]) {
+        destinations[origin].forEach(dest => {
+          destSelect.append(`<option value="${dest}">${dest}</option>`);
+        });
+      }
     });
 
+    $("#searchForm").on("submit", function(e) {
+      e.preventDefault();
+      let origin = $("#origin").val();
+      let destination = $("#destination").val();
+      let departure = $("#departure").val();
+      let ret = $("#return").val() || "N/A";
+      let passengers = parseInt($("#passengers").val());
+      let baseFare = 1000;
+      let totalPrice = baseFare * passengers;
+
+      $("#SOrigin").text(origin);
+      $("#SDestination").text(destination);
+      $("#SDeparture").text(departure);
+      $("#SReturn").text(ret);
+      $("#SPassengers").text(passengers);
+      $("#SPrice").text(totalPrice.toLocaleString());
+      $("#summary").removeClass("d-none");
+    });
   </script>
 </body>
 </html>
