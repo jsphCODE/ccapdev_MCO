@@ -33,21 +33,6 @@
         <h1 class="mb-4">Reservation Form</h1>
         
         <form id="reservationForm">
-            <h4>Passenger Details</h4>
-            <div class="mb-3">
-                <label for="name" class="form-label">Name:</label>
-                <input type="text" id="name" name="name" class="form-control" placeholder="Enter full name">
-            </div>
-
-            <div class="mb-3">
-                <label for="email" class="form-label">Email:</label>
-                <input type="email" id="email" name="email" class="form-control" placeholder="Enter email address">
-            </div>
-
-            <div class="mb-3">
-                <label for="pn" class="form-label">Passport No.:</label>
-                <input type="text" id="pn" name="pn" class="form-control" placeholder="Enter passport number">
-            </div>
 
             <h4>Optional Package Selection</h4>
             <div class="mb-3">
@@ -60,6 +45,7 @@
                 </select>
             </div>
 
+            <h4>Seat Selection</h4>
             <div class="mb-3">
                 <div class="row">
                     <div class="col">
@@ -117,9 +103,14 @@
             <input type="hidden" id="seatNo" name="seatNo">
 
             <div class="mb-3">
-                <label for="extraBaggage" class="form-label">Extra Baggage (kg):</label>
-                <input type="number" id="extraBaggage" name="extraBaggage" class="form-control" min="0" value="0">
-            </div>
+                <label for="extraBaggage" class="form-label">Extra Baggage:</label>
+                <select id="extraBaggage" name="extraBaggage" class="form-select">
+                    <option value="none">None</option>
+                    <option value="small">Small</option>
+                    <option value="medium">Medium</option>
+                    <option value="large">Large</option>
+                </select>
+             </div>
 
 
             <div id="summary" class="alert alert-info d-none">
@@ -140,45 +131,41 @@
         $("#reservationForm").on("submit", function (e) {
             e.preventDefault();
 
-            let name = $("#name").val().trim();
-            let email = $("#email").val().trim();
-            let passport = $("#pn").val().trim();
             let meal = $("#meal").val();
             let seat = $("#seatNo").val();
-            let baggage = parseInt($("#extraBaggage").val());
+            let baggage = $("#extraBaggage").val();
 
             let hasError = false;
-
-            $("#name, #email, #pn").removeClass("is-invalid");
-
-           
-            if (!name) { $("#name").addClass("is-invalid"); hasError = true; }
-            if (!email) { $("#email").addClass("is-invalid"); hasError = true; }
-            if (!passport) { $("#pn").addClass("is-invalid"); hasError = true; }
             if (!seat) { hasError = true; }
 
             if (hasError) {
                 $("#summary")
                     .removeClass("d-none alert-info")
                     .addClass("alert-danger")
-                    .html("Error: Please complete all fields and select a seat.");
+                    .html("Error: Please select a seat before proceeding.");
                 return;
             }
 
             
             let baseFare = 5000;
-            let baggageFee = baggage * 200;
+            let baggageFee = 0;
+
+            switch (baggage){
+                case "small": baggageFee = 500; break;
+                case "medium": baggageFee = 1000; break;
+                case "large": baggageFee = 1500; break;
+                default: baggageFee = 0 ; break;
+
+            }
+
             let mealFee = (meal !== "standard") ? 300 : 0;
             let total = baseFare + baggageFee + mealFee;
 
             let summaryHtml = `
                 <h5>Reservation Summary</h5>
-                Name: ${name}</br>
-                Email: ${email}</br>
-                Passport No.: ${passport}</br>
                 Meal: ${meal}</br>
                 Seat: ${seat}</br>
-                Extra Baggage: ${baggage} kg</br>
+                Extra Baggage: ${baggage.charAt(0).toUpperCase() + baggage.slice(1)}</br>
                 <hr>
                 Total Price: ₱${total.toLocaleString()}</br>
             `;
