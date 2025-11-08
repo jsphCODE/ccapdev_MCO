@@ -81,7 +81,7 @@ const ReservationSchema = new mongoose.Schema({
     },
     
 
-    mealOption: {
+    meal: {
         type: String,
         enum: ['standard', 'vegetarian', 'kosher', 'etc'], //Used enum for precise values for the variables
         default: 'standard'
