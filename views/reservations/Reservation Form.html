@@ -168,6 +168,7 @@
                 Extra Baggage: ${baggage.charAt(0).toUpperCase() + baggage.slice(1)}</br>
                 <hr>
                 Total Price: ₱${total.toLocaleString()}</br>
+                <button type="button" id= "ResListBtn" class="btn btn-primary">View Reservations</button>
             `;
 
             $("#summary")
@@ -175,6 +176,9 @@
                 .addClass("alert-info")
                 .html(summaryHtml);
         });
+    });
+    $(document).on("click", "#ResListBtn", function () {
+        window.location.href = "../reservations/Reservation List.html"; 
     });
 </script>
 

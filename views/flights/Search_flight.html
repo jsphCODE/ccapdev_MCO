@@ -76,6 +76,7 @@
       <p>Passengers:<span id="SPassengers"></span></p>
       <hr>
       <p class="price">Total Price: ₱<span id="SPrice"></span></p>
+      <button type="button" id="ResFormBtn" class="btn btn-primary w-100">Go to Reservation Form</button>
     </div>
   </div>
   <script>
@@ -117,5 +118,12 @@
       $("#summary").removeClass("d-none");
     });
   </script>
+  <script>
+    $(document).ready(function () {
+        $("#ResFormBtn").click(function () {
+            window.location.href = "../reservations/Reservation Form.html"; 
+        });
+    });
+</script>
 </body>
 </html>

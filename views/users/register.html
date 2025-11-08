@@ -63,11 +63,18 @@
                 </div>
 
                 <div style="text-align: center;">
-                    <button type="submit" id="registerBtn" class="btn btn-primary"><b>Register</b></button>
+                    <button type="button" id="registerBtn" class="btn btn-primary"><b>Register</b></button>
                 </div>
 
                 <div class="mt-3" id="registerMsg"></div>
             <!-- For future: <script src="/JS/register.js"></script> -->
+            <script>
+                $(document).ready(function () {
+                    $("#registerBtn").click(function () {
+                        window.location.href = "../users/login.html"; 
+                    });
+                });
+            </script>
             </form>
         </div>
     </body>
