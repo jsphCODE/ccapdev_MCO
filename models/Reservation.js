@@ -74,14 +74,18 @@ const ReservationSchema = new mongoose.Schema({
         //Not unique since users can have the same seat on different flights
     },
 
-    extraBag: {
-        type: Number,
-        trim: true
+    extraBaggage: {
+        type: String,
+        enum: ['none', 'small', 'medium', 'large'], //Changed variable type and Used enum for precise values for the variables
+        default:'none'
     },
+    
 
     mealOption: {
         type: String,
-        trim: true,
-        default: 'None'
+        enum: ['standard', 'vegetarian', 'kosher', 'etc'], //Used enum for precise values for the variables
+        default: 'standard'
     }
 });
+
+module.exports = mongoose.model('Reservation', ReservationSchema); //Makes the model usable 
