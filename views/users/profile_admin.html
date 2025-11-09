@@ -14,15 +14,15 @@
     <body>
         <div class="container mt-5">
             <h1 class = "mb-4">Profile</h1>
-            <p>Hello Admin (username)!</p>
+            <p>Hello Admin <span id="displayName"></span>!</p>
 
             <h4>Personal Information</h4>
 
             <!-- Full Name-->
             <div class="mb-3">
-                <p style="display: inline;" id="firstName">Joshua Samuel</p>
-                <p style="display: inline;" id="middleName">Pineda</p>
-                <p style="display: inline;" id="lastName">Habos</p>
+                <p style="display: inline;" id="firstName">Admin</p>
+                <p style="display: inline;" id="middleName">ADMIN</p>
+                <p style="display: inline;" id="lastName">AdMiN</p>
             </div>
 
             <div class="mb-3">
@@ -47,6 +47,30 @@
                 <button type="button" id="manageReservBtn" class="btn btn-warning"><b>Manage Reservations</b></button>
             </div>
             <!-- For future: <script src="/JS/profile.js"></script> -->
+            <script>
+                $(document).ready(function () {
+                    const username = localStorage.getItem("username");
+                    const email = localStorage.getItem("email");
+                    const userRole = localStorage.getItem("userRole");
+
+                    // Fill in profile info dynamically
+                    $("#displayName").text(username);
+                    $("#username").text(username);
+                    $("#email").text(email);
+                    
+                    $("#manageFlightsBtn").click(function () {
+                        window.location.href = "../flights/Flights.html"; 
+                    });
+                
+                    $("#manageReservBtn").click(function () {
+                        window.location.href = "../reservations/Reservation List.html"; 
+                    });
+                
+                    $("#logoutBtn").click(function () {
+                        window.location.href = "../users/login.html"; 
+                    });
+                });
+            </script>
         </div>
     </body>
 </html>

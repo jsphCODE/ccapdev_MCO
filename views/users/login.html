@@ -14,7 +14,7 @@
     <body>
         <div class="container mt-5">
             <h1 class = "mb-4">Profile Login</h1>
-            <p>Log into your account!</p>
+            <p>Log into your account</p>
 
             <form id="loginProfile">
 
@@ -42,11 +42,44 @@
             <!-- For future: <script src="/JS/login.js"></script> -->
             <script>
                 $(document).ready(function () {
+                    const adminUsername = "admin";
+                    const adminEmail = "admin@admin.com";
+                    const adminPassword = "admin";
+
                     $("#loginBtn").click(function () {
-                        window.location.href = "../users/profile.html"; 
+                        const username = $("#username").val().trim();
+                        const email = $("#email").val().trim();
+                        const password = $("#password").val().trim();
+
+                        if (!username || !email || !password) {
+                            $("#loginMsg").html('<div class="alert alert-warning">Please fill in all fields.</div>');
+                            return;
+                        }
+                        if (
+                            username === adminUsername &&
+                            email === adminEmail &&
+                            password === adminPassword
+                        ) {
+                            localStorage.setItem("username", username);
+                            localStorage.setItem("userRole", "admin");
+                            
+                            $("#loginMsg").html('<div class="alert alert-success">Admin login successful! Redirecting...</div>');
+                            setTimeout(function () {
+                                window.location.href = "../users/profile_admin.html";
+                            }, 1000);
+                        } else {
+                            localStorage.setItem("username", username);
+                            localStorage.setItem("userRole", "user");
+
+                            $("#loginMsg").html('<div class="alert alert-success">Login successful! Redirecting...</div>');
+                            setTimeout(function () {
+                                window.location.href = "../users/profile.html";
+                            }, 1000);
+                        }
                     });
+
                     $("#registerBtn").click(function () {
-                        window.location.href = "../users/register.html"; 
+                        window.location.href = "../users/register.html";
                     });
                 });
             </script>
