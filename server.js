@@ -197,7 +197,7 @@ app.listen(PORT, async () => {
             email: 'iverson_alay@dlsu.edu.ph',
             phone: '09128990723',
             password: 'read4B00k',
-            role: 'User'
+            role: 'Admin'
             },
 
             {username: 'Al', firstName: 'Alpha',
