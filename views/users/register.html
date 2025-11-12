@@ -16,7 +16,7 @@
             <h1 class = "mb-4">Profile Registration</h1>
             <p>Please fill up the following below to create your own account!</p>
 
-            <form id="registerProfile" action="profile.html" method="post">
+            <form id="registerProfile" action="/users/register" method="POST">
                 <h4>Personal Information</h4>
 
                 <div class="mb-3">
@@ -63,18 +63,11 @@
                 </div>
 
                 <div style="text-align: center;">
-                    <button type="button" id="registerBtn" class="btn btn-primary"><b>Register</b></button>
+                    <button type="submit" class="btn btn-primary"><b>Register</b></button>
                 </div>
 
                 <div class="mt-3" id="registerMsg"></div>
-            <!-- For future: <script src="/JS/register.js"></script> -->
-            <script>
-                $(document).ready(function () {
-                    $("#registerBtn").click(function () {
-                        window.location.href = "../users/login.html"; 
-                    });
-                });
-            </script>
+            <script src="checkRegForm.js"></script>
             </form>
         </div>
     </body>

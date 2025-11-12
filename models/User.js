@@ -1,13 +1,6 @@
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true,
-        trim: true,
-        unique: true
-    },
-
     firstName: {
         type: String,
         required: true,
@@ -37,6 +30,13 @@ const UserSchema = new mongoose.Schema({
     phone: {
         type: String,
         match: '^(09|\+639)\d{9}$',
+        trim: true,
+        unique: true
+    },
+    
+    username: {
+        type: String,
+        required: true,
         trim: true,
         unique: true
     },

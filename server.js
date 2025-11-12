@@ -31,6 +31,16 @@ app.get('/', (req, res) => {
     res.render('Initial', {title: 'Initial Homepage'});
 });
 
+//Route for adding registered user to the DB
+app.post('/users/register', async (req, res) => {
+    const formData = req.body;
+    const newUser = new User(formData);
+
+    await newUser.save();
+
+    res.render('', {formData});
+});
+
 //Other routes to add as we make the Handlebars pages
 
 
