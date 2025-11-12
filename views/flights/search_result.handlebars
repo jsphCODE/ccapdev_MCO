@@ -1,5 +1,5 @@
 {{!-- {
-    flight: [
+    flights: [
         {
             Airline:
             flightNumber:
@@ -66,12 +66,12 @@
 <body>
     <div class="container">
         <h1 class="mb-2 text-center">Flight Search</h1>
-        {{#if Flight.length}}
+        {{#if flights.length}}
         <table class="table table-striped table-bordered">
             <thead class="table-dark">
                 <tr>
                     <th>#</th>
-                    <th>Flight</th> {{!-- Airline + flightNumber --}}
+                    <th>Airline and Flight no.</th> {{!-- Airline + flightNumber --}}
                     <th>Flight Route</th> {{!-- Origin -> Destination --}}
                     <th>Departure Date and Time</th> {{!-- Date + Time --}}
                     <th>Arrival Date and Time</th> {{!-- Date + Time --}} <!-- overnight flights-->
@@ -82,17 +82,17 @@
                 </tr>
             </thead>
             <tbody>
-                {{#each Flight}}
+                {{#each flights}}
                 <tr>
                     <td>{{@index}}</td>
-                    <td>{{this.airline}}{{this.flightNumber}}</td>
-                    <td>{{this.origin}} → {{this.destination}}</td>
-                    <td>{{this.schedule}}<br>{{this.departure}}</td>
-                    <td>{{this.arrival_schedule}}<br>{{this.arrival}}</td>
-                    <td>{{this.price}}</td>
-                    <td>{{this.aircraft}}</td>
-                    <td>{{this.capacity}}</td>
-                    <td><a href="/reservations/{{this._id}}" class="btn btn-sm btn-info">Book</a></td> {{!-- don't think this is correct, i need help --}}
+                    <td>{{airline}}{{flightNumber}}</td>
+                    <td>{{origin}} → {{destination}}</td>
+                    <td>{{schedule}}<br>{{departure}}</td>
+                    <td>{{arrival_schedule}}<br>{{arrival}}</td>
+                    <td>{{price}}</td>
+                    <td>{{aircraft}}</td>
+                    <td>{{capacity}}</td>
+                    <td><a href="/reservations/{{_id}}" class="btn btn-sm btn-primary">Book</a></td> {{!-- don't think this is correct, i need help --}}
                 </tr>
                 {{/each}}
             </tbody>
