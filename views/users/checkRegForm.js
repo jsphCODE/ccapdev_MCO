@@ -1,7 +1,7 @@
 $(document).ready(function () {
-  $('#registrationForm').on('submit', function (e) {
+  $('#registerProfile').on('submit', function (e) {
     e.preventDefault();
-    $('#formMessage').empty();
+    $('#registerMsg').empty();
     clearErrors();
 
     const errors = [];
@@ -13,11 +13,7 @@ $(document).ready(function () {
     const username = $('#username').val().trim();
     const password = $('#password').val();
     const confirmPassword = $('#confirmPassword').val();
-    const address = $('#address').val().trim();
-    const city = $('#city').val().trim();
-    const state = $('#state').val().trim();
-    const zip = $('#zip').val().trim();
-    const country = $('#country').val();
+    const role = $('#role').val();
 
     // Validation rules
     if (!/^[a-zA-Z]{2,}$/.test(firstName)) {
@@ -55,36 +51,11 @@ $(document).ready(function () {
       showError('#confirmPassword');
     }
 
-    if (address.length < 5) {
-      errors.push('Address must be at least 5 characters.');
-      showError('#address');
-    }
-
-    if (!/^[a-zA-Z\s]+$/.test(city)) {
-      errors.push('City must contain only letters.');
-      showError('#city');
-    }
-
-    if (!/^[a-zA-Z\s]+$/.test(state)) {
-      errors.push('State must contain only letters.');
-      showError('#state');
-    }
-
-    if (!/^\d{5}$/.test(zip)) {
-      errors.push('ZIP code must be 5 digits.');
-      showError('#zip');
-    }
-
-    if (!country) {
-      errors.push('Please select a country.');
-      showError('#country');
-    }
-
     // Output result
     if (errors.length > 0) {
-      $('#formMessage').html(`<div class="error">${errors.join('<br>')}</div>`);
+      $('#registerMsg').html(`<div class="error">${errors.join('<br>')}</div>`);
     } else {
-      $('#formMessage').html('<div class="success">Registration successful!</div>');
+      $('#registerMsg').html('<div class="success">Registration successful!</div>');
       //this.reset();
       this.submit();
     }
@@ -95,6 +66,6 @@ $(document).ready(function () {
   }
 
   function clearErrors() {
-    $('#registrationForm input, #registrationForm select').css('border-color', '');
+    $('#registerProfile input, #registerProfile select').css('border-color', '');
   }
 });

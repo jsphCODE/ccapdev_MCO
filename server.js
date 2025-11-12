@@ -25,8 +25,9 @@ app.set('views', './views');
 //Middleware (not really sure but including this)
 app.use(express.urlencoded({ extended: true }));
 
-//Routes
-//Inital page for logging in or registering
+//ROUTES
+
+//Route for loading Inital page (login or register)
 app.get('/', (req, res) => {
     res.render('Initial', {title: 'Initial Homepage'});
 });
@@ -38,7 +39,7 @@ app.post('/users/register', async (req, res) => {
 
     await newUser.save();
 
-    res.render('', {formData});
+    res.render('/users/confirmation', {formData});
 });
 
 //Other routes to add as we make the Handlebars pages
