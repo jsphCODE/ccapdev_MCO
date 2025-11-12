@@ -1,3 +1,4 @@
+//Also checks the 'edit profile' form, since it uses the same form
 $(document).ready(function () {
   $('#registerProfile').on('submit', function (e) {
     e.preventDefault();
@@ -11,8 +12,8 @@ $(document).ready(function () {
     const email = $('#email').val().trim();
     const phone = $('#phone').val().trim();
     const username = $('#username').val().trim();
-    const password = $('#password').val();
-    const confirmPassword = $('#confirmPassword').val();
+    const password = $('#password').val().trim();
+    const confirmPassword = $('#confirmPassword').val().trim();
     const role = $('#role').val();
 
     // Validation rules
@@ -55,8 +56,7 @@ $(document).ready(function () {
     if (errors.length > 0) {
       $('#registerMsg').html(`<div class="error">${errors.join('<br>')}</div>`);
     } else {
-      $('#registerMsg').html('<div class="success">Registration successful!</div>');
-      //this.reset();
+      $('#registerMsg').html('<div class="success">Success!</div>');
       this.submit();
     }
   });

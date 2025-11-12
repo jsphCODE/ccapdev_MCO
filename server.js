@@ -42,6 +42,44 @@ app.post('/users/register', async (req, res) => {
     res.render('/users/confirmation', {formData});
 });
 
+//Route for getting login details (MCO 3)
+
+//Route for checking if user login details are in the DB (MCO 3)
+
+//Route for getting one user by username
+app.get('/users/edit-profile/:username', async (req, res) =>{
+  try{
+    const user = await User.findOne(req.params.username).lean();
+    //If user if found by inputted username, display in an 'edit profile' form
+    if (user) {
+      res.render('/users/edit-profile', {title: 'User Details', user});
+    }
+    //Otherwise, throw 404 error
+    else {
+      res.status(404).send('User not found');
+    }
+  } catch (err){
+    res.status(400).send('Invalid username');
+  }
+});
+
+//Route for updating a user's data
+app.post('/users/edit-profile/:username', async (req, res) => {
+  try{
+    const updatedUser = await User.findOneAndUpdate(req.params.username, req.body).lean();
+    //If user is updated in the server, direct to the confirmation page
+    if (updatedUser) {
+      res.render('/users/confirmation', {title: 'User Edit confirmation', updatedUser});
+    }
+    //Otherwise, throw 404 error
+    else {
+      res.status(404).send('User not found');
+    }
+  } catch (err){
+    res.status(400).send('Error updating user');
+  }
+});
+
 //Other routes to add as we make the Handlebars pages
 router.get("/edit-reservation/:id/", async (req, res) => {
   try {
@@ -136,7 +174,7 @@ app.patch('/api/reservations/:id', async (req, res) =>{
 //     res.status(404).json({ message: `User with ID ${userId} not found` }); }
 // });
 
-// Unsure if this is needed: app.use(express.static(__dirname));
+app.use(express.static(__dirname));
 
 //Starting up the server
 app.listen(PORT, async () => {
@@ -151,6 +189,30 @@ app.listen(PORT, async () => {
             email: 'joshua_habos@dlsu.edu.ph',
             phone: '09232130974',
             password: 'FlyingIsC00l',
+            role: 'Admin'
+            },
+
+            {username: 'Iv3r', firstName: 'Iverson Paul',
+            middleName: 'Ventosa', lastName: 'Alay',
+            email: 'iverson_alay@dlsu.edu.ph',
+            phone: '09128990723',
+            password: 'read4B00k',
+            role: 'User'
+            },
+
+            {username: 'Al', firstName: 'Alpha',
+            middleName: 'Beta', lastName: 'Omega',
+            email: 'alpha_omega@dlsu.edu.ph',
+            phone: '09091223456',
+            password: 'HaHatdog',
+            role: 'Admin'
+            },
+
+            {username: 'Quen', firstName: 'Quentin',
+            middleName: 'Jeroma', lastName: 'Tarantino',
+            email: 'quentin_tarantino@dlsu.edu.ph',
+            phone: '09123456789',
+            password: 'iM4kef1lm',
             role: 'Admin'
             }
         ]);

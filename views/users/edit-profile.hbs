@@ -1,0 +1,56 @@
+<div class="card mb-3">
+    <p>Please fill up the following below to edit your account.</p>
+    <form id="registerProfile" action="/users/edit-profile" method="POST">
+        <h4>Personal Information</h4>
+        
+        <div class="mb-3">
+            <label for="firstName" class="form-label">First Name *</label>
+            <input type="text" id="firstName" pattern="[A-Za-z]*" name="firstName" class="form-control" value={{user.firstName}}required />
+        </div>
+            
+        <div class="mb-3">
+            <label for="middleName" class="form-label">Middle Name *</label>
+            <input type="text" id="middleName" pattern="[A-Za-z]*" name="middleName" class="form-control" value={{user.middleName}} required /> 
+        </div>
+
+        <div class="mb-3">
+            <label for="lastName" class="form-label">Last Name *</label>
+            <input type="text" id="lastName" pattern="[A-Za-z]*" name="lastName" class="form-control" value={{user.lastName}} required /> 
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email Address *</label>
+            <input type="email" id="email" name="email" class="form-control" value={{user.email}} required />
+        </div>
+
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input type="tel" id="phone" name="phone" class="form-control" value={{user.phone}}/>
+        </div>
+
+        <br>
+        <h4>Account Details</h4>
+
+        <div class="mb-3">
+            <label for="username" class="form-label">Username *</label>
+            <input type="text" id="username" name="username" class="form-control" value={{user.username}}required />
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password *</label>
+            <input type="password" id="password" name="password" class="form-control" value={{user.password}}required />
+        </div>
+
+        <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Confirm Password *</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required />
+        </div>
+
+        <div style="text-align: center;">
+            <button type="submit" class="btn btn-primary"><b>Edit Profile</b></button>
+        </div>
+
+        <div class="mt-3" id="registerMsg"></div>
+        <script src="checkRegForm.js"></script>
+    </form>
+</div>
