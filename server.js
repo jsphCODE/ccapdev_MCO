@@ -42,7 +42,76 @@ app.post('/users/register', async (req, res) => {
 });
 
 //Other routes to add as we make the Handlebars pages
+router.get("/edit-reservation/:id/", async (req, res) => {
+  try {
+    const reservation = await Reservation.findById(req.params.id).populate("flight");
+    if (!reservation) return res.status(404).send("Reservation not found");
 
+    res.render("edit-reservation", {reservation});
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+router.post("/edit-reservation/:id/", async (req, res) => {
+  try {
+    const {seat, meal, baggage} = req.body;
+
+    await Reservation.findByIdAndUpdate(req.params.id, {
+      seat,
+      meal,
+      baggage
+    });
+
+    res.redirect(`/reservations_list/${req.params.id}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error updating reservation");
+  }
+});
+
+router.post("/:id/cancel", async (req, res) => {
+  try {
+    await Reservation.findByIdAndUpdate(req.params.id, {
+      status: "Cancelled"
+    });
+
+    res.redirect("/reservations/reservation_list");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error cancelling reservation");
+  }
+});
+
+//Edits/Removes Optional Packages 
+app.patch('/api/reservations/:id', async (req, res) =>{
+    try{
+        const {id} = req.params;
+
+        const updatedReservation = await Reservation.findByIdandUpdate(
+            id,
+            {$set: req.body},
+            {
+                new: true,
+                runValidators: true
+            }
+        );
+
+        if (!updatedReservation) {
+            return res.status(404).json({message:"Reservation not found"});
+        }
+
+        res.status(200).json(updatedReservation);
+
+    } catch (error) {
+        console.error('Reservation update error:', error);
+        res.status(400).json({
+            message: "Failed to update reservation packages",
+            error: error.message
+        });
+    }
+});
 
 
 // const users = [
