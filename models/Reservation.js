@@ -85,6 +85,12 @@ const ReservationSchema = new mongoose.Schema({
         type: String,
         enum: ['standard', 'vegetarian', 'kosher', 'etc'], //Used enum for precise values for the variables
         default: 'standard'
+    },
+
+    status:{
+        type: String,
+        enum: ['succeed','canceled'],
+        default: 'succeed'
     }
 });
 
