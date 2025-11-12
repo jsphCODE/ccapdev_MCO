@@ -32,7 +32,47 @@ app.get('/', (req, res) => {
 });
 
 //Other routes to add as we make the Handlebars pages
+router.get("/edit-reservation/:id/", async (req, res) => {
+  try {
+    const reservation = await Reservation.findById(req.params.id).populate("flight");
+    if (!reservation) return res.status(404).send("Reservation not found");
 
+    res.render("edit-reservation", {reservation});
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+
+router.post("/edit-reservation/:id/", async (req, res) => {
+  try {
+    const {seat, meal, baggage} = req.body;
+
+    await Reservation.findByIdAndUpdate(req.params.id, {
+      seat,
+      meal,
+      baggage
+    });
+
+    res.redirect(`/reservations_list/${req.params.id}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error updating reservation");
+  }
+});
+
+router.post("/:id/cancel", async (req, res) => {
+  try {
+    await Reservation.findByIdAndUpdate(req.params.id, {
+      status: "Cancelled"
+    });
+
+    res.redirect("/reservations/reservation_list");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error cancelling reservation");
+  }
+});
 
 
 // const users = [
