@@ -74,6 +74,35 @@ router.post("/:id/cancel", async (req, res) => {
   }
 });
 
+//Edits/Removes Optional Packages 
+app.patch('/api/reservations/:id', async (req, res) =>{
+    try{
+        const {id} = req.params;
+
+        const updatedReservation = await Reservation.findByIdandUpdate(
+            id,
+            {$set: req.body},
+            {
+                new: true,
+                runValidators: true
+            }
+        );
+
+        if (!updatedReservation) {
+            return res.status(404).json({message:"Reservation not found"});
+        }
+
+        res.status(200).json(updatedReservation);
+
+    } catch (error) {
+        console.error('Reservation update error:', error);
+        res.status(400).json({
+            message: "Failed to update reservation packages",
+            error: error.message
+        });
+    }
+});
+
 
 // const users = [
 //     { id: 1, name: 'Alice Johnson', email: 'alice@example.com', role:
