@@ -23,9 +23,14 @@
         }
 
         .seat.reserved{
-            background-color: black;
+            background-color: #dc3545;
             color: white;
             pointer-events: none;
+        }
+        
+        .seat.available{
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
         }
     </style>
 </head>
@@ -36,57 +41,87 @@
         <h2 class="mb-4 text-center">Edit Reservation</h2>
 
         <form action="/reservations/{{reservation._id}}/edit" method="POST" class="card p-4 shadow-sm">
+            <!-- Reservation ID -->
+            <div class="mb-3">
+                <label class="form-label">Reservation ID</label>
+                <input type="text" class="form-control" value="{{reservation.reserveID}}" readonly>
+            </div>
 
-            <h4 class="mb-3">{{reservation.flight.airline}} - {{reservation.flight.flightNumber}}</h4>
-            <p>{{reservation.flight.origin}} → {{reservation.flight.destination}}</p>
-            <p>Date: {{reservation.flight.schedule}} {{reservation.flight.departure}}</p>
+            <!-- Flight Information -->
+            <h4 class="mb-3">Flight Information</h4>
+            <div class="mb-3">
+                <p><strong>Flight:</strong> {{reservation.flight.flightNumber}}</p>
+                <p><strong>Route:</strong> {{reservation.flight.origin}} → {{reservation.flight.destination}}</p>
+                <p><strong>Date:</strong> {{formatDate reservation.flight.schedule}}</p>
+                <p><strong>Departure:</strong> {{reservation.flight.departure}}</p>
+                <p><strong>Arrival:</strong> {{reservation.flight.arrival}}</p>
+            </div>
 
-            <!-- <div class="mb-3">
+            <!-- Passenger Information -->
+            <h4 class="mb-3">Passenger Information</h4>
+            <div class="mb-3">
                 <label class="form-label">Passenger Name</label>
-                <input type="text" class="form-control" name="passengerName" value="{{reservation.passengerName}}"
-                    readonly>
+                <input type="text" class="form-control" value="{{reservation.reserveUser}}" readonly>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Email</label>
-                <input type="email" class="form-control" name="email" value="{{reservation.email}}" readonly>
-            </div> -->
-            
+                <input type="email" class="form-control" value="{{reservation.reserveEmail}}" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Passport Number</label>
+                <input type="text" class="form-control" value="{{reservation.passportNo}}" readonly>
+            </div>
+
+            <!-- Seat Selection -->
             <h4>Seat Selection</h4>
             <div class="mb-3">
+                <p class="text-muted">Current seat: <strong>{{reservation.seatNo}}</strong></p>
                 {{#each seatRows}}
-                <div class="row">
-
-                    <div class="col">
+                <div class="row justify-content-center mb-2">
+                    <div class="col-auto">
                         {{#each this.aisle1}}
-                        <button type="button" class="btn btn-outline-primary seat {{#if this.isReserved}}reserved{{/if}}" data-seat="{{this.id}}">"{{this.id}}"</button>
+                        <button type="button" class="btn seat 
+                            {{#if this.isReserved}}reserved{{else}}available{{/if}}
+                            {{#if (eq this.id ../reservation.seatNo)}}selected{{/if}}"
+                            data-seat="{{this.id}}"
+                            {{#if this.isReserved}}disabled{{/if}}>
+                            {{this.id}}
+                        </button>
                         {{/each}}
                     </div>
 
-                    <div class="col">
+                    <div class="col-auto">
                         {{#each this.aisle2}}
-                        <button type="button" class="btn btn-outline-primary seat {{#if this.isReserved}}reserved{{/if}}" data-seat="{{this.id}}">"{{this.id}}"</button>
+                        <button type="button" class="btn seat 
+                            {{#if this.isReserved}}reserved{{else}}available{{/if}}
+                            {{#if (eq this.id ../reservation.seatNo)}}selected{{/if}}"
+                            data-seat="{{this.id}}"
+                            {{#if this.isReserved}}disabled{{/if}}>
+                            {{this.id}}
+                        </button>
                         {{/each}}
                     </div>
                 </div>
                 {{/each}}
-                
             </div>
 
-            <input type="hidden" id="seatNo" name="seatNo">
+            <input type="hidden" id="seatNo" name="seatNo" value="{{reservation.seatNo}}">
 
+            <!-- Meal Option -->
             <div class="mb-3">
                 <label class="form-label">Meal Option</label>
                 <select name="meal" class="form-select">
-                    <option value="standard" {{#if (eq reservation.meal "standard" )}}selected{{/if}}>Standard</option>
-                    <option value="vegetarian" {{#if (eq reservation.meal "vegetarian" )}}selected{{/if}}>Vegetarian
-                    </option>
-                    <option value="kosher" {{#if (eq reservation.meal "kosher" )}}selected{{/if}}>Kosher</option>
-                    <option value="etc" {{#if (eq reservation.meal "etc" )}}selected{{/if}}>Etc.</option>
+                    <option value="standard" {{#if (eq reservation.meal "standard")}}selected{{/if}}>Standard</option>
+                    <option value="vegetarian" {{#if (eq reservation.meal "vegetarian")}}selected{{/if}}>Vegetarian</option>
+                    <option value="kosher" {{#if (eq reservation.meal "kosher")}}selected{{/if}}>Kosher</option>
+                    <option value="etc" {{#if (eq reservation.meal "etc")}}selected{{/if}}>Other</option>
                 </select>
             </div>
 
-           <div class="mb-3">
+            <!-- Extra Baggage -->
+            <div class="mb-3">
                 <label for="extraBaggage" class="form-label">Extra Baggage:</label>
                 <select id="extraBaggage" name="extraBaggage" class="form-select">
                     <option value="none" {{#if (eq reservation.extraBaggage "none")}}selected{{/if}}>None</option>
@@ -103,9 +138,19 @@
         </form>
     </div>
 
+    <script>
+        $(document).ready(function () {
+            $(".seat.available").on("click", function () {
+                if ($(this).hasClass('reserved')) {
+                    return;
+                }
+                
+                $(".seat").removeClass("selected"); 
+                $(this).addClass("selected");       
+                $("#seatNo").val($(this).data("seat")); 
+            });
+        });
+    </script>
+
 </body>
-
-
 </html>
-
-
