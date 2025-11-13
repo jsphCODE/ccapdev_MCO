@@ -1,0 +1,46 @@
+<div class="container mt-5">
+    <h1 class="mb-4">Profile</h1>
+    <p>Hello {{username}}!</p>
+
+    <h4>Personal Information</h4>
+
+    <!-- Full Name -->
+    <div class="mb-3">
+        <p style="display: inline;" id="firstName">{{firstName}}</p>
+        <p style="display: inline;" id="middleName">{{middleName}}</p>
+        <p style="display: inline;" id="lastName">{{lastName}}</p>
+    </div>
+
+    <div class="mb-3">
+        <p id="email">{{email}}</p>
+    </div>
+
+    <div class="mb-3">
+        <p id="phone">{{phone}}</p>
+    </div>
+
+    <br>
+    <h4>Account Details</h4>
+
+    <div class="mb-3">
+        <p id="username">{{username}}</p>
+    </div>
+
+    <div>
+        <button type="button" id="editProfileBtn" class="btn btn-primary"><b>Edit Profile</b></button>
+        <button type="button" id="logoutBtn" class="btn btn-danger"><b>Logout</b></button>
+        <button type="button" id="goToReservListBtn" class="btn btn-secondary">Go to <b>Reservation List</b></button>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#goToReservListBtn").click(function () {
+                window.location.href = "../reservations/Reservation List.html"; 
+            });
+
+            $("#logoutBtn").click(function () {
+                window.location.href = "../users/login.html"; 
+            });
+        });
+    </script>
+</div>
