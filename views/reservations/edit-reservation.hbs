@@ -37,11 +37,11 @@
 
         <form action="/reservations/{{reservation._id}}/edit" method="POST" class="card p-4 shadow-sm">
 
-            <h5 class="mb-3">{{reservation.flight.airline}} - {{reservation.flight.flightNumber}}</h5>
+            <h4 class="mb-3">{{reservation.flight.airline}} - {{reservation.flight.flightNumber}}</h4>
             <p>{{reservation.flight.origin}} → {{reservation.flight.destination}}</p>
-            <p>Date: {{formatDate reservation.flight.departureTime}}</p>
+            <p>Date: {{reservation.flight.schedule}} {{reservation.flight.departure}}</p>
 
-            <div class="mb-3">
+            <!-- <div class="mb-3">
                 <label class="form-label">Passenger Name</label>
                 <input type="text" class="form-control" name="passengerName" value="{{reservation.passengerName}}"
                     readonly>
@@ -50,7 +50,7 @@
             <div class="mb-3">
                 <label class="form-label">Email</label>
                 <input type="email" class="form-control" name="email" value="{{reservation.email}}" readonly>
-            </div>
+            </div> -->
             
             <h4>Seat Selection</h4>
             <div class="mb-3">
@@ -107,4 +107,5 @@
 
 
 </html>
+
 
