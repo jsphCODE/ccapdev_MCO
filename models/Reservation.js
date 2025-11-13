@@ -32,35 +32,10 @@ const ReservationSchema = new mongoose.Schema({
     },
 
     //FLIGHT DETAILS
-    
-    origin: {
-        type: String,
-        required: true,
-        trim: true
-    },
 
-    destination: {
-        type: String,
-        required: true,
-        trim: true
-    },
-
-    //Date of takeoff; no time
-    schedule: {
-        type: Date, //YYYY-MM-DD
-        required: true,
-        trim: true
-    },
-
-    //Departure and arrival times are included; will be in string for now
-    departure: {
-        type: String, //##:## (TIMEZONE), in military format
-        required: true,
-        trim: true
-    },
-
-    arrival: {
-        type: String, //##:## (TIMEZONE), in military format
+    flight: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Flight",
         required: true,
         trim: true
     },
@@ -92,6 +67,44 @@ const ReservationSchema = new mongoose.Schema({
         enum: ['succeed','canceled'],
         default: 'succeed'
     }
-});
+
+}, { timestamps: true });
 
 module.exports = mongoose.model('Reservation', ReservationSchema); //Makes the model usable 
+
+
+
+
+    // //FLIGHT DETAILS
+    
+    // origin: {
+    //     type: String,
+    //     required: true,
+    //     trim: true
+    // },
+
+    // destination: {
+    //     type: String,
+    //     required: true,
+    //     trim: true
+    // },
+
+    // //Date of takeoff; no time
+    // schedule: {
+    //     type: Date, //YYYY-MM-DD
+    //     required: true,
+    //     trim: true
+    // },
+
+    // //Departure and arrival times are included; will be in string for now
+    // departure: {
+    //     type: String, //##:## (TIMEZONE), in military format
+    //     required: true,
+    //     trim: true
+    // },
+
+    // arrival: {
+    //     type: String, //##:## (TIMEZONE), in military format
+    //     required: true,
+    //     trim: true
+    // },
