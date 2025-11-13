@@ -69,6 +69,23 @@ app.get('/login', async (req, res) =>{
   }
 });
 
+// Route to show flight search page
+app.get('/flights/Search_flight', async (req, res) => {
+  try {
+      // Fetch flights from database
+      const flights = await Flight.find().lean();
+
+      // Render your Handlebars template
+      res.render('flights/flight_search', { 
+          Title: 'Flight Search',
+          flights
+      });
+  } catch (err) {
+      console.error(err);
+      res.status(500).send('Server Error');
+  }
+});
+
 //Route for getting login details (MCO 3)
 
 //Route for checking if user login details are in the DB (MCO 3)
