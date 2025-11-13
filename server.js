@@ -138,7 +138,7 @@ router.post("/book/:flightId", async (req, res) => {
     }
 });
 
-
+//route for getting the form that will be edit
 router.get("/edit-reservation/:id/", async (req, res) => {
   try {
     const reservation = await Reservation.findById(req.params.id).populate("flight");
@@ -151,6 +151,7 @@ router.get("/edit-reservation/:id/", async (req, res) => {
   }
 });
 
+//route for posting the form that will be edit
 router.post("/edit-reservation/:id/", async (req, res) => {
   try {
     const {seat, meal, baggage} = req.body;
