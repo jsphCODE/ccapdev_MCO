@@ -32,17 +32,40 @@ app.use(express.urlencoded({ extended: true }));
 
 //Route for loading Inital page (login or register)
 app.get('/', (req, res) => {
-    res.render('initial');
+    res.render('initial', {Title : 'Initial Page'});
+});
+
+//Route for loading registration page
+app.get('/register', async (req, res) => {
+    res.render('partials/users/register' , {Title : 'User Registration'}); // Shows registration form
 });
 
 //Route for adding registered user to the DB
-app.post('/users/register', async (req, res) => {
+app.post('/register', async (req, res) => {
     const formData = req.body;
     const newUser = new User(formData);
 
     await newUser.save();
 
-    res.render('/users/confirmation', {formData});
+    res.render('partials/users/confirmation', {formData}); //Renders the confirmaton page upon successful registration
+});
+
+//Route for loading the profile page
+app.get('/profile', async (req, res) => {
+  const formData = req.body;
+    res.render('partials/users/profile' , {Title : 'Your Profile Page', formData}); // Shows registration form
+});
+
+//Initial GET route for redndering the login page
+app.get('/partials/users/login', async (req, res) =>{
+  res.render('/partials/users/login', {Title : 'User Login'});
+  const user = await User(formData)
+  if (user) {
+    res.render('/partials/users/confirmation', {formData}); //Renders the confirmaton page upon successful login
+  }
+  else {
+    res.status(404).send('User not found');
+  }
 });
 
 //Route for getting login details (MCO 3)

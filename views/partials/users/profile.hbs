@@ -1,0 +1,33 @@
+<div class="container mt-5">
+    <p>Hello {{username}}!</p>
+
+    <h4>Personal Information</h4>
+
+    <!-- Full Name -->
+    <div class="mb-3">
+        <p style="display: inline;" id="firstName">{{formData.firstName}}</p>
+        <p style="display: inline;" id="middleName">{{formData.middleName}}</p>
+        <p style="display: inline;" id="lastName">{{formData.lastName}}</p>
+    </div>
+
+    <div class="mb-3">
+        <p id="email">{{formData.email}}</p>
+    </div>
+
+    <div class="mb-3">
+        <p id="phone">{{formData.phone}}</p>
+    </div>
+
+    <br>
+    <h4>Account Details</h4>
+
+    <div class="mb-3">
+        <p id="username">{{formData.username}}</p>
+    </div>
+
+    <div class="mb-3">
+        <a href="/edit-profile" class="btn btn-primary">Edit Profile</a>
+        <a href="/logout" class="btn btn-danger">Logout</a>
+        <a href="/reservationList" class="btn btn-primary">Go to <b>Reservation List</b></a>
+    </div>
+</div>
