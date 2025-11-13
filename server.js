@@ -81,6 +81,64 @@ app.post('/users/edit-profile/:username', async (req, res) => {
 });
 
 //Other routes to add as we make the Handlebars pages
+
+//route for get search result
+router.get("/search_flight", async (req, res) => {
+    try {
+        const flights = await Flight.find({
+            origin: req.query.origin,
+            destination: req.query.destination,
+            schedule: req.query.departure
+        });
+        res.render("flights/flight_results", { flights });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("No flight");
+    }
+});
+
+// route for get the reservation form
+router.get("/book/:flightId", async (req, res) => {
+    try {
+        const flight = await Flight.findById(req.params.flightId);
+
+        // if (!flight) return res.status(404).send("Flight not found");
+
+        res.render("reservations/reservation_form", { flight });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server Error");
+    }
+});
+
+// route for posting the form(create a booking in mongoDB)
+router.post("/book/:flightId", async (req, res) => {
+    try {
+        const {
+            seatNo,
+            extraBaggage,
+            meal
+        } = req.body;
+
+        const flight = await Flight.findById(req.params.flightId);
+
+        const reservation = new Reservation({
+            seatNo,
+            meal,
+            extraBaggage,
+            flight: flight._Id
+        });
+
+        await reservation.save();
+
+        res.redirect(`/reservations_list`);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server Error");
+    }
+});
+
+
 router.get("/edit-reservation/:id/", async (req, res) => {
   try {
     const reservation = await Reservation.findById(req.params.id).populate("flight");
