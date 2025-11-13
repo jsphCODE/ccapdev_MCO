@@ -30,7 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 
 //ROUTES
 
-//Route for loading Inital page (login or register)
+//Route for loading inital page (login or register)
 app.get('/', (req, res) => {
     res.render('initial', {Title : 'Initial Page'});
 });
@@ -47,24 +47,64 @@ app.post('/register', async (req, res) => {
 
     await newUser.save();
 
-    res.render('partials/users/confirmation', {formData}); //Renders the confirmaton page upon successful registration
+    res.render('partials/users/confirmation', {Title: 'Registration Confirmation', formData}); //Renders the confirmaton page upon successful registration
 });
 
 //Route for loading the profile page
 app.get('/profile', async (req, res) => {
   const formData = req.body;
-    res.render('partials/users/profile' , {Title : 'Your Profile Page', formData}); // Shows registration form
+  res.render('partials/users/profile' , {Title : 'Your Profile Page', formData}); // Shows registration form
 });
 
 //Initial GET route for redndering the login page
-app.get('/partials/users/login', async (req, res) =>{
-  res.render('/partials/users/login', {Title : 'User Login'});
-  const user = await User(formData)
+app.get('/login', async (req, res) =>{
+  res.render('partials/users/login', {Title : 'User Login'});
+  const formData = req.body;
+  const user = await User(formData);
   if (user) {
-    res.render('/partials/users/confirmation', {formData}); //Renders the confirmaton page upon successful login
+    res.render('partials/users/confirmation', {Title: 'Login Confirmation', formData}); //Renders the confirmaton page upon successful login
   }
   else {
     res.status(404).send('User not found');
+  }
+});
+
+//Route for getting login details (MCO 3)
+
+//Route for checking if user login details are in the DB (MCO 3)
+
+//Route for getting one user by username (TO BE FIXED)
+app.get('/edit-profile/:username', async (req, res) =>{
+  try{
+    const user = await User.findOne({ username: req.params.username }).lean();
+    //If user if found by inputted username, display in an 'edit profile' form
+    if (user) {
+      res.render('partials/users/edit-profile', {Title: 'Edit Profile', user});
+    }
+    //Otherwise, throw 404 error
+    else {
+      res.status(404).send('User not found');
+    }
+  } catch (err){
+    res.status(400).send('Invalid username');
+  }
+});
+
+//Route for updating a user's data (TO BE FIXED)
+app.post('/edit-profile/:username', async (req, res) => {
+  try{
+    const formData = req.body;
+    const updatedUser = await User.findOneAndUpdate({ username: formData.username }, req.body).lean();
+    //If user is updated in the server, direct to the confirmation page
+    if (updatedUser) {
+      res.render('partials/users/confirmation', {Title: 'User Edit Confirmation', updatedUser}); //Renders the confirmaton page upon successful edit of profile
+    }
+    //Otherwise, throw 404 error
+    else {
+      res.status(404).send('User not found');
+    }
+  } catch (err){
+    res.status(400).send('Error updating user');
   }
 });
 
@@ -305,3 +345,4 @@ app.listen(PORT, async () => {
     }
 
 });
+
