@@ -41,13 +41,11 @@
         <h2 class="mb-4 text-center">Edit Reservation</h2>
 
         <form action="/reservations/{{reservation._id}}/edit" method="POST" class="card p-4 shadow-sm">
-            <!-- Reservation ID -->
             <div class="mb-3">
                 <label class="form-label">Reservation ID</label>
                 <input type="text" class="form-control" value="{{reservation.reserveID}}" readonly>
             </div>
 
-            <!-- Flight Information -->
             <h4 class="mb-3">Flight Information</h4>
             <div class="mb-3">
                 <p><strong>Flight:</strong> {{reservation.flight.flightNumber}}</p>
@@ -57,7 +55,6 @@
                 <p><strong>Arrival:</strong> {{reservation.flight.arrival}}</p>
             </div>
 
-            <!-- Passenger Information -->
             <h4 class="mb-3">Passenger Information</h4>
             <div class="mb-3">
                 <label class="form-label">Passenger Name</label>
@@ -74,7 +71,6 @@
                 <input type="text" class="form-control" value="{{reservation.passportNo}}" readonly>
             </div>
 
-            <!-- Seat Selection -->
             <h4>Seat Selection</h4>
             <div class="mb-3">
                 <p class="text-muted">Current seat: <strong>{{reservation.seatNo}}</strong></p>
@@ -109,7 +105,6 @@
 
             <input type="hidden" id="seatNo" name="seatNo" value="{{reservation.seatNo}}">
 
-            <!-- Meal Option -->
             <div class="mb-3">
                 <label class="form-label">Meal Option</label>
                 <select name="meal" class="form-select">
@@ -120,7 +115,6 @@
                 </select>
             </div>
 
-            <!-- Extra Baggage -->
             <div class="mb-3">
                 <label for="extraBaggage" class="form-label">Extra Baggage:</label>
                 <select id="extraBaggage" name="extraBaggage" class="form-select">
@@ -154,3 +148,4 @@
 
 </body>
 </html>
+
