@@ -3,7 +3,6 @@
 <head>
     <title>Reservation Form</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -21,9 +20,21 @@
         }
 
         .seat.reserved{
-            background-color: black;
+            background-color: #dc3545;
             color: white;
             pointer-events: none;
+        }
+        
+        .seat.available{
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+        
+        .flight-info {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -32,41 +43,79 @@
     <div class="container mt-5">
         <h1 class="mb-4">Reservation Form</h1>
         
-        <form id="reservationForm">
+        {{#if flight}}
+        <div class="flight-info">
+            <h4>Flight Details</h4>
+            <p><strong>Flight:</strong> {{flight.flightNumber}}</p>
+            <p><strong>Route:</strong> {{flight.origin}} → {{flight.destination}}</p>
+            <p><strong>Date:</strong> {{formatDate flight.schedule}}</p>
+            <p><strong>Departure:</strong> {{flight.departure}} | <strong>Arrival:</strong> {{flight.arrival}}</p>
+            <p><strong>Aircraft:</strong> {{flight.aircraft}}</p>
+        </div>
+        {{/if}}
+        
+        <form id="reservationForm" action="/reservations" method="POST">
+            <input type="hidden" name="flight" value="{{flight._id}}">
 
-            <h4>Optional Package Selection</h4>
+            <h4 class="mt-4">Passenger Information</h4>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="reserveUser" class="form-label">Full Name *</label>
+                    <input type="text" id="reserveUser" name="reserveUser" class="form-control" required>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="reserveEmail" class="form-label">Email *</label>
+                    <input type="email" id="reserveEmail" name="reserveEmail" class="form-control" required>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="passportNo" class="form-label">Passport Number *</label>
+                <input type="text" id="passportNo" name="passportNo" class="form-control" required>
+            </div>
+
+            <h4>Seat Selection</h4>
+            <div class="mb-3">
+                {{#each seatRows}}
+                <div class="row justify-content-center mb-2">
+                    <div class="col-auto">
+                        {{#each this.aisle1}}
+                        <button type="button" class="btn seat 
+                            {{#if this.isReserved}}reserved{{else}}available{{/if}}"
+                            data-seat="{{this.id}}"
+                            {{#if this.isReserved}}disabled{{/if}}>
+                            {{this.id}}
+                        </button>
+                        {{/each}}
+                    </div>
+
+                    <div class="col-auto">
+                        {{#each this.aisle2}}
+                        <button type="button" class="btn seat 
+                            {{#if this.isReserved}}reserved{{else}}available{{/if}}"
+                            data-seat="{{this.id}}"
+                            {{#if this.isReserved}}disabled{{/if}}>
+                            {{this.id}}
+                        </button>
+                        {{/each}}
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+
+            <input type="hidden" id="seatNo" name="seatNo" required>
+
+            <h4>Service Options</h4>
             <div class="mb-3">
                 <label for="meal" class="form-label">Meal Options:</label>
                 <select name="meal" id="meal" class="form-select">
                     <option value="standard">Standard</option>
                     <option value="vegetarian">Vegetarian</option>
                     <option value="kosher">Kosher</option>
-                    <option value="etc">Etc.</option>
+                    <option value="etc">Other</option>
                 </select>
             </div>
-
-            <h4>Seat Selection</h4>
-            <div class="mb-3">
-                {{#each seatRows}}
-                <div class="row">
-
-                    <div class="col">
-                        {{#each this.aisle1}}
-                        <button type="button" class="btn btn-outline-primary seat {{#if this.isReserved}}reserved{{/if}}" data-seat="{{this.id}}">"{{this.id}}"</button>
-                        {{/each}}
-                    </div>
-
-                    <div class="col">
-                        {{#each this.aisle2}}
-                        <button type="button" class="btn btn-outline-primary seat {{#if this.isReserved}}reserved{{/if}}" data-seat="{{this.id}}">"{{this.id}}"</button>
-                        {{/each}}
-                    </div>
-                </div>
-                {{/each}}
-                
-            </div>
-
-            <input type="hidden" id="seatNo" name="seatNo">
 
             <div class="mb-3">
                 <label for="extraBaggage" class="form-label">Extra Baggage:</label>
@@ -76,20 +125,20 @@
                     <option value="medium">Medium</option>
                     <option value="large">Large</option>
                 </select>
-             </div>
-
-
-            <div id="summary" class="alert alert-info d-none">
             </div>
 
-            <button type="submit" class="btn btn-primary">Submit Reservation</button>
+            <div id="summary" class="alert alert-info d-none"></div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg">Submit Reservation</button>
+                <a href="/flights/search" class="btn btn-secondary btn-lg">Cancel</a>
+            </div>
         </form>
     </div>
 
 <script>
     $(document).ready(function () {
-        $(".seat").on("click", function () {
-
+        $(".seat.available").on("click", function () {
             if ($(this).hasClass('reserved')) {
                 return;
             }
@@ -100,51 +149,22 @@
         });
 
         $("#reservationForm").on("submit", function (e) {
-            e.preventDefault();
-
-            let meal = $("#meal").val();
-            let seat = $("#seatNo").val();
-            let baggage = $("#extraBaggage").val();
-
-            let hasError = false;
-            if (!seat) { hasError = true; }
-
-            if (hasError) {
+            const seat = $("#seatNo").val();
+            
+            if (!seat) {
+                e.preventDefault();
                 $("#summary")
                     .removeClass("d-none alert-info")
                     .addClass("alert-danger")
                     .html("Error: Please select a seat before proceeding.");
-                return;
+                return false;
             }
-
             
-            let baseFare = 5000;
-            let baggageFee = 0;
-
-            switch (baggage){
-                case "small": baggageFee = 500; break;
-                case "medium": baggageFee = 1000; break;
-                case "large": baggageFee = 1500; break;
-                default: baggageFee = 0 ; break;
-
-            }
-
-            let mealFee = (meal !== "standard") ? 300 : 0;
-            let total = baseFare + baggageFee + mealFee;
-
-            let summaryHtml = `
-                <h5>Reservation Summary</h5>
-                Meal: ${meal}</br>
-                Seat: ${seat}</br>
-                Extra Baggage: ${baggage.charAt(0).toUpperCase() + baggage.slice(1)}</br>
-                <hr>
-                Total Price: ₱${total.toLocaleString()}</br>
-            `;
-
+            // Form will submit normally if validation passes
             $("#summary")
                 .removeClass("d-none alert-danger")
                 .addClass("alert-info")
-                .html(summaryHtml);
+                .html("Processing your reservation...");
         });
     });
 </script>
