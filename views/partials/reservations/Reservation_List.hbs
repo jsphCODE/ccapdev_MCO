@@ -20,36 +20,37 @@
                 <div class="card booking-card">
                     <div class="card-body">
                         <h5 class="card-title">
-                            {{flight.origin}} ➝ {{flight.destination}}
+                            {{this.flight.origin}} ➝ {{this.flight.destination}}
                         </h5>
                         <p class="card-text"><strong>Reservation ID:</strong> {{this.reserveID}}</p>
+                        <p class="card-text"><strong>Flight:</strong> {{this.flight.flightNumber}}</p>
                         <p class="card-text"><strong>Passenger:</strong> {{this.reserveUser}}</p>
                         <p class="card-text"><strong>Seat:</strong> {{this.seatNo}}</p>
+                        <p class="card-text"><strong>Date:</strong> {{formatDate this.flight.schedule}}</p>
                         <p class="card-text"><strong>Status:</strong> 
                             <span class="badge {{#if (eq this.status 'succeed')}}bg-success{{else}}bg-danger{{/if}}">
                                 {{this.status}}
                             </span>
                         </p>
 
-                        
-                        <button class="btn btn-primary btn-sm view-detail" data-id="{{_id}}">
-                            View Details
-                        </button>
-
-                        
-                        <a href="/reservations/{{_id}}/edit" class="btn btn-warning btn-sm">
-                            Edit
-                        </a>
-
-                        
-                        {{#if (eq this.status 'succeed')}}
-                        <form action="/reservations/{{_id}}/cancel" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm" 
-                                    onclick="return confirm('Are you sure you want to cancel this reservation?')">
-                                Cancel
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-primary btn-sm view-detail" data-id="{{this._id}}">
+                                View Details
                             </button>
-                        </form>
-                        {{/if}}
+
+                            {{#if (eq this.status 'succeed')}}
+                            <a href="/reservations/{{this._id}}/edit" class="btn btn-warning btn-sm">
+                                Edit
+                            </a>
+
+                            <form action="/reservations/{{this._id}}/cancel" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm" 
+                                        onclick="return confirm('Are you sure you want to cancel this reservation?')">
+                                    Cancel
+                                </button>
+                            </form>
+                            {{/if}}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -60,11 +61,10 @@
         {{/if}}
 
         <div class="text-center mt-3">
-            <a href="/flights/Search_flight" class="btn btn-success">Book New Flight</a>
+            <a href="/flights/search" class="btn btn-success">Book New Flight</a>
         </div>
     </div>
 
-    
     <div class="modal fade" id="booking-details" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="BookingLabel">
         <div class="modal-dialog">
@@ -94,16 +94,25 @@
                 if (!reservation) return;
 
                 $("#booking-details-body").html(`
+                    <h6>Reservation Information</h6>
                     <p><strong>Reservation ID:</strong> ${reservation.reserveID}</p>
                     <p><strong>Passenger:</strong> ${reservation.reserveUser}</p>
                     <p><strong>Email:</strong> ${reservation.reserveEmail}</p>
                     <p><strong>Passport:</strong> ${reservation.passportNo}</p>
                     <hr>
-                    <p><strong>Flight:</strong> ${reservation.flight.origin} to ${reservation.flight.destination}</p>
+                    <h6>Flight Information</h6>
+                    <p><strong>Flight:</strong> ${reservation.flight.flightNumber}</p>
+                    <p><strong>Route:</strong> ${reservation.flight.origin} to ${reservation.flight.destination}</p>
+                    <p><strong>Date:</strong> ${new Date(reservation.flight.schedule).toLocaleDateString()}</p>
+                    <p><strong>Departure:</strong> ${reservation.flight.departure}</p>
+                    <p><strong>Arrival:</strong> ${reservation.flight.arrival}</p>
+                    <hr>
+                    <h6>Reservation Details</h6>
                     <p><strong>Seat:</strong> ${reservation.seatNo}</p>
                     <p><strong>Meal:</strong> ${reservation.meal}</p>
                     <p><strong>Extra Baggage:</strong> ${reservation.extraBaggage}</p>
                     <p><strong>Status:</strong> ${reservation.status}</p>
+                    <p><strong>Created:</strong> ${new Date(reservation.createdAt).toLocaleString()}</p>
                 `);
 
                 const modal = new bootstrap.Modal(document.getElementById("booking-details"));
