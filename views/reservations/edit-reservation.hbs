@@ -32,7 +32,28 @@
                 <input type="email" class="form-control" name="email" value="{{reservation.email}}" readonly>
             </div>
             
-            {{!-- Idk how to do change seat --}}
+            <h4>Seat Selection</h4>
+            <div class="mb-3">
+                {{#each seatRows}}
+                <div class="row">
+
+                    <div class="col">
+                        {{#each this.aisle1}}
+                        <button type="button" class="btn btn-outline-primary seat {{#if this.isReserved}}reserved{{/if}}" data-seat="{{this.id}}">"{{this.id}}"</button>
+                        {{/each}}
+                    </div>
+
+                    <div class="col">
+                        {{#each this.aisle2}}
+                        <button type="button" class="btn btn-outline-primary seat {{#if this.isReserved}}reserved{{/if}}" data-seat="{{this.id}}">"{{this.id}}"</button>
+                        {{/each}}
+                    </div>
+                </div>
+                {{/each}}
+                
+            </div>
+
+            <input type="hidden" id="seatNo" name="seatNo">
 
             <div class="mb-3">
                 <label class="form-label">Meal Option</label>
@@ -63,5 +84,6 @@
     </div>
 
 </body>
+
 
 </html>
