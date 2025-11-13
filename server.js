@@ -70,13 +70,13 @@ app.get('/login', async (req, res) =>{
 });
 
 // Route to show flight search page
-app.get('/flights/Search_flight', async (req, res) => {
+app.get('/flights/search_flight', async (req, res) => {
   try {
       // Fetch flights from database
       const flights = await Flight.find().lean();
 
       // Render your Handlebars template
-      res.render('flights/flight_search', { 
+      res.render('flights/search_flight', { 
           Title: 'Flight Search',
           flights
       });
