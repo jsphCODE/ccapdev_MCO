@@ -168,7 +168,7 @@ router.post("/edit-reservation/:id/", async (req, res) => {
   }
 });
 
-router.post("/:id/cancel", async (req, res) => {
+router.post("/reservation/:id/cancel", async (req, res) => {
   try {
     await Reservation.findByIdAndUpdate(req.params.id, {
       status: "Cancelled"
