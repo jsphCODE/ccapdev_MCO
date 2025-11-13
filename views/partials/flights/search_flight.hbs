@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flight Search</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <style>
+    body { background-color: white; }
+    .summary-panel {
+      border: 1px solid pink;
+      border-radius: 30px;
+      padding: 20px;
+      background: greenyellow;
+      margin-top: 20px;
+    }
+    .summary-panel h4 { margin-bottom: 20px; }
+    .price { font-size: 1.3rem; font-weight: bold; color: green; }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="mb-4 text-center">Flight Search</h1>
+
+    <!-- Search Form -->
+    <form id="searchForm" class="row g-3 mb-4">
+      <div class="col-md-4">
+        <label for="origin" class="form-label">Origin</label>
+        <select id="origin" class="form-select" required>
+          <option value="">Select Origin</option>
+          <option value="NAIA">NAIA</option>
+          <option value="Clark">Clark</option>
+          <option value="Cebu">Cebu</option>
+          <option value="Davao">Davao</option>
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label for="destination" class="form-label">Destination</label>
+        <select id="destination" class="form-select" required>
+          <option value="">Select Destination</option>
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label for="departure" class="form-label">Departure Date</label>
+        <input type="date" id="departure" class="form-control" required>
+      </div>
+
+      <div class="col-md-4">
+        <label for="return" class="form-label">Return Date</label>
+        <input type="date" id="return" class="form-control">
+      </div>
+
+      <div class="col-md-4">
+        <label for="passengers" class="form-label">Passengers</label>
+        <input type="number" id="passengers" class="form-control" min="1" value="1" required>
+      </div>
+
+      <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Calculate Price</button>
+      </div>
+    </form>
+
+    <!-- Flight Summary Panel -->
+    <div id="summary" class="summary-panel d-none">
+      <h4>Flight Summary</h4>
+      <p>From: <span id="SOrigin"></span></p>
+      <p>To: <span id="SDestination"></span></p>
+      <p>Departure: <span id="SDeparture"></span></p>
+      <p>Return: <span id="SReturn"></span></p>
+      <p>Passengers: <span id="SPassengers"></span></p>
+      <hr>
+      <p class="price">Total Price: ₱<span id="SPrice"></span></p>
+      <button type="button" id="ResFormBtn" class="btn btn-primary w-100">Go to Reservation Form</button>
+    </div>
+
+    <!-- Flight Results Table -->
+    {{#if flights.length}}
+    <h2 class="mt-5 mb-3 text-center">Available Flights</h2>
+    <table class="table table-striped table-bordered text-center align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>Airline & Flight</th>
+          <th>Route</th>
+          <th>Departure</th>
+          <th>Arrival</th>
+          <th>Price</th>
+          <th>Aircraft</th>
+          <th>Capacity</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each flights}}
+        <tr>
+          <td>{{inc @index}}</td>
+          <td>{{airline}} {{flightNumber}}</td>
+          <td>{{origin}} → {{destination}}</td>
+          <td>{{schedule}}<br>{{departure}}</td>
+          <td>{{arrival_schedule}}<br>{{arrival}}</td>
+          <td>{{price}}</td>
+          <td>{{aircraft}}</td>
+          <td>{{capacity}}</td>
+          <td>
+            <a href="/reservations/book/{{_id}}" class="btn btn-primary btn-sm">Book</a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    {{else}}
+    <p class="text-center text-muted mt-5">No flights found.</p>
+    {{/if}}
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    const destinations = {
+      "NAIA": ["Tokyo", "Singapore", "Hong Kong"],
+      "Clark": ["Manila", "Seoul", "Bangkok"],
+      "Cebu": ["Manila", "New Zealand", "Beijing"],
+      "Davao": ["Manila", "Taipei", "Seoul"]
+    };
+
+    $("#origin").on("change", function() {
+      const origin = $(this).val();
+      const destSelect = $("#destination");
+      destSelect.empty().append('<option value="">Select Destination</option>');
+
+      if (destinations[origin]) {
+        destinations[origin].forEach(dest => {
+          destSelect.append(`<option value="${dest}">${dest}</option>`);
+        });
+      }
+    });
+
+    $("#searchForm").on("submit", function(e) {
+      e.preventDefault();
+      const origin = $("#origin").val();
+      const destination = $("#destination").val();
+      const departure = $("#departure").val();
+      const ret = $("#return").val() || "N/A";
+      const passengers = parseInt($("#passengers").val());
+      const baseFare = 1000; // example price per passenger
+      const totalPrice = baseFare * passengers;
+
+      $("#SOrigin").text(origin);
+      $("#SDestination").text(destination);
+      $("#SDeparture").text(departure);
+      $("#SReturn").text(ret);
+      $("#SPassengers").text(passengers);
+      $("#SPrice").text(totalPrice.toLocaleString());
+      $("#summary").removeClass("d-none");
+    });
+
+    $("#ResFormBtn").click(function() {
+      window.location.href = "/reservations/Reservation_Form"; // adjust to your route
+    });
+  </script>
+</body>
+</html>
