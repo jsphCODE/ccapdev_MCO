@@ -86,13 +86,13 @@
                 </select>
             </div>
 
-            <div class="mb-3">
-                <label for="baggage" class="form-label">Extra Baggage:</label>
-                <select id="baggage" name="baggage" class="form-select">
-                    <option value="none" {{#if (eq reservation.baggage "none" )}}selected{{/if}}>None</option>
-                    <option value="small" {{#if (eq reservation.baggage "small" )}}selected{{/if}}>Small</option>
-                    <option value="medium" {{#if (eq reservation.baggage "medium" )}}selected{{/if}}>Medium</option>
-                    <option value="large" {{#if (eq reservation.baggage "large" )}}selected{{/if}}>Large</option>
+           <div class="mb-3">
+                <label for="extraBaggage" class="form-label">Extra Baggage:</label>
+                <select id="extraBaggage" name="extraBaggage" class="form-select">
+                    <option value="none" {{#if (eq reservation.extraBaggage "none")}}selected{{/if}}>None</option>
+                    <option value="small" {{#if (eq reservation.extraBaggage "small")}}selected{{/if}}>Small</option>
+                    <option value="medium" {{#if (eq reservation.extraBaggage "medium")}}selected{{/if}}>Medium</option>
+                    <option value="large" {{#if (eq reservation.extraBaggage "large")}}selected{{/if}}>Large</option>
                 </select>
             </div>
 
