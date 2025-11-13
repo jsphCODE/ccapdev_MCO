@@ -29,7 +29,7 @@ const UserSchema = new mongoose.Schema({
     //Phone number is not required to create a user account
     phone: {
         type: String,
-        match: '^(09|\+639)\d{9}$',
+        //match: '^(09|\+639)\d{9}$',
         trim: true,
         unique: true
     },

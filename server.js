@@ -18,8 +18,11 @@ mongoose.connect('mongodb://127.0.0.1:27017/userdb')
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
 //Setting up Handlebars
-app.engine('handlebars', exphbs.engine());
-app.set('view engine', 'handlebars');
+app.engine('hbs', exphbs.engine({
+  extname: 'hbs',
+  defaultLayout: 'main'
+}));
+app.set('view engine', 'hbs');
 app.set('views', './views');
 
 //Middleware (not really sure but including this)
@@ -29,7 +32,7 @@ app.use(express.urlencoded({ extended: true }));
 
 //Route for loading Inital page (login or register)
 app.get('/', (req, res) => {
-    res.render('Initial', {title: 'Initial Homepage'});
+    res.render('initial');
 });
 
 //Route for adding registered user to the DB
@@ -83,104 +86,104 @@ app.post('/users/edit-profile/:username', async (req, res) => {
 //Other routes to add as we make the Handlebars pages
 
 //route for get search result
-router.get("/search_flight", async (req, res) => {
-    try {
-        const flights = await Flight.find({
-            origin: req.query.origin,
-            destination: req.query.destination,
-            schedule: req.query.departure
-        });
-        res.render("flights/flight_results", { flights });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("No flight");
-    }
-});
+// router.get("/search_flight", async (req, res) => {
+//     try {
+//         const flights = await Flight.find({
+//             origin: req.query.origin,
+//             destination: req.query.destination,
+//             schedule: req.query.departure
+//         });
+//         res.render("flights/flight_results", { flights });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send("No flight");
+//     }
+// });
 
-// route for get the reservation form
-router.get("/book/:flightId", async (req, res) => {
-    try {
-        const flight = await Flight.findById(req.params.flightId);
+// // route for get the reservation form
+// router.get("/book/:flightId", async (req, res) => {
+//     try {
+//         const flight = await Flight.findById(req.params.flightId);
 
-        // if (!flight) return res.status(404).send("Flight not found");
+//         // if (!flight) return res.status(404).send("Flight not found");
 
-        res.render("reservations/reservation_form", { flight });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Server Error");
-    }
-});
+//         res.render("reservations/reservation_form", { flight });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send("Server Error");
+//     }
+// });
 
-// route for posting the form(create a booking in mongoDB)
-router.post("/book/:flightId", async (req, res) => {
-    try {
-        const {
-            seatNo,
-            extraBaggage,
-            meal
-        } = req.body;
+// // route for posting the form(create a booking in mongoDB)
+// router.post("/book/:flightId", async (req, res) => {
+//     try {
+//         const {
+//             seatNo,
+//             extraBaggage,
+//             meal
+//         } = req.body;
 
-        const flight = await Flight.findById(req.params.flightId);
+//         const flight = await Flight.findById(req.params.flightId);
 
-        const reservation = new Reservation({
-            seatNo,
-            meal,
-            extraBaggage,
-            flight: flight._Id
-        });
+//         const reservation = new Reservation({
+//             seatNo,
+//             meal,
+//             extraBaggage,
+//             flight: flight._Id
+//         });
 
-        await reservation.save();
+//         await reservation.save();
 
-        res.redirect(`/reservations_list`);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Server Error");
-    }
-});
+//         res.redirect(`/reservations_list`);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send("Server Error");
+//     }
+// });
 
-//route for getting the form that will be edit
-router.get("/edit-reservation/:id/", async (req, res) => {
-  try {
-    const reservation = await Reservation.findById(req.params.id).populate("flight");
-    if (!reservation) return res.status(404).send("Reservation not found");
+// //route for getting the form that will be edit
+// router.get("/edit-reservation/:id/", async (req, res) => {
+//   try {
+//     const reservation = await Reservation.findById(req.params.id).populate("flight");
+//     if (!reservation) return res.status(404).send("Reservation not found");
 
-    res.render("edit-reservation", {reservation});
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server Error");
-  }
-});
+//     res.render("edit-reservation", {reservation});
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Server Error");
+//   }
+// });
 
-//route for posting the form that will be edit
-router.post("/edit-reservation/:id/", async (req, res) => {
-  try {
-    const {seat, meal, baggage} = req.body;
+// //route for posting the form that will be edit
+// router.post("/edit-reservation/:id/", async (req, res) => {
+//   try {
+//     const {seat, meal, baggage} = req.body;
 
-    await Reservation.findByIdAndUpdate(req.params.id, {
-      seat,
-      meal,
-      baggage
-    });
+//     await Reservation.findByIdAndUpdate(req.params.id, {
+//       seat,
+//       meal,
+//       baggage
+//     });
 
-    res.redirect(`/reservations_list/${req.params.id}`);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error updating reservation");
-  }
-});
+//     res.redirect(`/reservations_list/${req.params.id}`);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Error updating reservation");
+//   }
+// });
 
-router.post("/reservation/:id/cancel", async (req, res) => {
-  try {
-    await Reservation.findByIdAndUpdate(req.params.id, {
-      status: "Cancelled"
-    });
+// router.post("/reservation/:id/cancel", async (req, res) => {
+//   try {
+//     await Reservation.findByIdAndUpdate(req.params.id, {
+//       status: "Cancelled"
+//     });
 
-    res.redirect("/reservations/reservation_list");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error cancelling reservation");
-  }
-});
+//     res.redirect("/reservations/reservation_list");
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Error cancelling reservation");
+//   }
+// });
 
 //Edits/Removes Optional Packages 
 app.patch('/api/reservations/:id', async (req, res) =>{

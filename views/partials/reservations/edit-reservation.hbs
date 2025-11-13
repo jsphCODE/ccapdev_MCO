@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Reservation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        .seat{
+            width: 50px;
+            height: 50px;
+            margin: 5px;
+            border-radius: 5px;
+        }
+
+        .seat.selected{
+            background-color: green;
+            color: white;
+        }
+
+        .seat.reserved{
+            background-color: black;
+            color: white;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <h2 class="mb-4 text-center">Edit Reservation</h2>
+
+        <form action="/reservations/{{reservation._id}}/edit" method="POST" class="card p-4 shadow-sm">
+
+            <h4 class="mb-3">{{reservation.flight.airline}} - {{reservation.flight.flightNumber}}</h4>
+            <p>{{reservation.flight.origin}} → {{reservation.flight.destination}}</p>
+            <p>Date: {{reservation.flight.schedule}} {{reservation.flight.departure}}</p>
+
+            <!-- <div class="mb-3">
+                <label class="form-label">Passenger Name</label>
+                <input type="text" class="form-control" name="passengerName" value="{{reservation.passengerName}}"
+                    readonly>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="email" value="{{reservation.email}}" readonly>
+            </div> -->
+            
+            <h4>Seat Selection</h4>
+            <div class="mb-3">
+                {{#each seatRows}}
+                <div class="row">
+
+                    <div class="col">
+                        {{#each this.aisle1}}
+                        <button type="button" class="btn btn-outline-primary seat {{#if this.isReserved}}reserved{{/if}}" data-seat="{{this.id}}">"{{this.id}}"</button>
+                        {{/each}}
+                    </div>
+
+                    <div class="col">
+                        {{#each this.aisle2}}
+                        <button type="button" class="btn btn-outline-primary seat {{#if this.isReserved}}reserved{{/if}}" data-seat="{{this.id}}">"{{this.id}}"</button>
+                        {{/each}}
+                    </div>
+                </div>
+                {{/each}}
+                
+            </div>
+
+            <input type="hidden" id="seatNo" name="seatNo">
+
+            <div class="mb-3">
+                <label class="form-label">Meal Option</label>
+                <select name="meal" class="form-select">
+                    <option value="standard" {{#if (eq reservation.meal "standard" )}}selected{{/if}}>Standard</option>
+                    <option value="vegetarian" {{#if (eq reservation.meal "vegetarian" )}}selected{{/if}}>Vegetarian
+                    </option>
+                    <option value="kosher" {{#if (eq reservation.meal "kosher" )}}selected{{/if}}>Kosher</option>
+                    <option value="etc" {{#if (eq reservation.meal "etc" )}}selected{{/if}}>Etc.</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="baggage" class="form-label">Extra Baggage:</label>
+                <select id="baggage" name="baggage" class="form-select">
+                    <option value="none" {{#if (eq reservation.baggage "none" )}}selected{{/if}}>None</option>
+                    <option value="small" {{#if (eq reservation.baggage "small" )}}selected{{/if}}>Small</option>
+                    <option value="medium" {{#if (eq reservation.baggage "medium" )}}selected{{/if}}>Medium</option>
+                    <option value="large" {{#if (eq reservation.baggage "large" )}}selected{{/if}}>Large</option>
+                </select>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="/reservations/my-bookings" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+</body>
+
+
+</html>
+
+
