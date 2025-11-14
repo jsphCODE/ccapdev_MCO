@@ -53,30 +53,47 @@ app.post('/register', async (req, res) => {
 //Route for loading the profile page
 app.get('/profile', async (req, res) => {
   const formData = req.body;
-  res.render('partials/users/profile' , {Title : 'Your Profile Page', formData}); // Shows registration form
+  res.render('partials/users/profile' , {Title : 'Your Profile Page', formData}); // Shows profile page
 });
 
 //Initial GET route for redndering the login page
 app.get('/login', async (req, res) =>{
   res.render('partials/users/login', {Title : 'User Login'});
-  const formData = req.body;
-  const user = await User(formData);
-  if (user) {
-    res.render('partials/users/confirmation', {Title: 'Login Confirmation', formData}); //Renders the confirmaton page upon successful login
-  }
-  else {
-    res.status(404).send('User not found');
-  }
+//   try{
+//   const formData = req.body;
+//   const found = await User.findOne( {username : formData.username }).lean();
+//   if (found) {
+//     res.render('partials/users/confirmation', {Title: 'Login Confirmation', formData}); //Renders the confirmaton page upon successful login
+//   }
+//   else {
+//     res.status(404).send('User not found');
+//   }
+//     } catch (err) {
+//     console.error(err);
+//     res.status(500).send('Server Error');
+//     }
+});
+
+//Route to find user in DB (login)
+app.post('/login', async (req, res) => {
+    const formData = req.body;
+    const check = await User.findOne({username : formData.username}).lean();
+    if (check) {
+        res.render('partials/users/confirmation', {Title: 'Login Confirmation', formData}); //Renders the confirmaton page upon successful login
+    }
+    else {
+        res.status(404).send('User not found');
+    }
 });
 
 // Route to show flight search page
-app.get('/flights/search_flight', async (req, res) => {
+app.get('/searchFlight', async (req, res) => {
   try {
       // Fetch flights from database
       const flights = await Flight.find().lean();
 
       // Render your Handlebars template
-      res.render('flights/search_flight', { 
+      res.render('partials/flights/search_flight', { 
           Title: 'Flight Search',
           flights
       });
@@ -166,11 +183,8 @@ app.post('/users/edit-profile/:username', async (req, res) => {
 //route to get flight search results
  app.get("/search_flight", async (req, res) => {
     try {
-         const flights = await Flight.find({
-            origin: req.query.origin,
-            destination: req.query.destination,
-         });
-
+         const flights = await Flight.find();
+        
 
          res.render("flights/flight_results", { flights });
      } catch (err) {
@@ -184,8 +198,8 @@ app.post('/users/edit-profile/:username', async (req, res) => {
 // Route to get reservations list (My Bookings)
 app.get('/reservations', async (req, res) => {
     try {
-        const reservations = await Reservation.find().populate('flight');
-        res.render('Reservation_List', {
+        const reservations = await Reservation.find().populate('flight').lean();
+        res.render('partials/reservations/Reservation_List', {
             Title: 'Your Reservations',
             reservations
         });
@@ -461,6 +475,23 @@ app.listen(PORT, async () => {
             }
         ]);
         console.log('Admin users inserted into database.');
+    }
+
+    //Inserting dummy flight data if empty
+    const flights = await Flight.countDocuments();
+    if (flights === 0){
+        await Flight.insertMany([
+            {flightNumber: 'test',
+            origin: 'NAIA',
+            destination: 'Tokyo',
+            schedule: 2025-11-16,
+            departure: '20:00',
+            arrival: '23:00',
+            aircraft: 'PAL',
+            capacity: '256'
+            }
+        ]);
+        console.log('Testing flight data inserted into database.');
     }
 
 });
