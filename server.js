@@ -75,7 +75,7 @@ app.get('/login', async (req, res) =>{
 });
 
 //Route to find user in DB (login)
-app.post('/login', async (req, res) => {
+app.get('/login/check', async (req, res) => {
     const formData = req.body;
     const check = await User.findOne({username : formData.username}).lean();
     if (check) {
