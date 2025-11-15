@@ -1,3 +1,9 @@
+//=======
+
+//SETUP
+
+//=======
+
 //Prerequisites
 const express = require('express');
 const mongoose = require('mongoose');
@@ -25,15 +31,23 @@ app.engine('hbs', exphbs.engine({
 app.set('view engine', 'hbs');
 app.set('views', './views');
 
-//Middleware (not really sure but including this)
+//Middleware
 app.use(express.urlencoded({ extended: true }));
+
+//========
 
 //ROUTES
 
+//========
+
 //Route for loading inital page (login or register)
 app.get('/', (req, res) => {
-    res.render('initial', {Title : 'Initial Page'});
+    res.render('initial', {Title : 'Home Page'});
 });
+
+//========================
+//User Managerment Routes
+//========================
 
 //Route for loading registration page
 app.get('/register', async (req, res) => {
@@ -51,40 +65,107 @@ app.post('/register', async (req, res) => {
 });
 
 //Route for loading the profile page
-app.get('/profile', async (req, res) => {
-  const formData = req.body;
-  res.render('partials/users/profile' , {Title : 'Your Profile Page', formData}); // Shows profile page
+app.get('/profile/:username', async (req, res) => {
+    const user = await User.findOne({username: req.params.username}).lean(); //Finds the user's info based on username
+    if (user) {
+        res.render('partials/users/profile' , {Title : 'Your Profile Page', user}); // Shows profile page
+    }
+    else {
+        res.status(404).send('User not found.');
+    }
+    
 });
 
 //Initial GET route for redndering the login page
 app.get('/login', async (req, res) =>{
   res.render('partials/users/login', {Title : 'User Login'});
-//   try{
-//   const formData = req.body;
-//   const found = await User.findOne( {username : formData.username }).lean();
-//   if (found) {
-//     res.render('partials/users/confirmation', {Title: 'Login Confirmation', formData}); //Renders the confirmaton page upon successful login
-//   }
-//   else {
-//     res.status(404).send('User not found');
-//   }
-//     } catch (err) {
-//     console.error(err);
-//     res.status(500).send('Server Error');
-//     }
 });
 
-//Route to find user in DB (login)
-app.get('/login/check', async (req, res) => {
-    const formData = req.body;
-    const check = await User.findOne({username : formData.username}).lean();
-    if (check) {
-        res.render('partials/users/confirmation', {Title: 'Login Confirmation', formData}); //Renders the confirmaton page upon successful login
+//POST route to find user in DB (login)
+app.post('/login', async (req, res) => {
+    const formData = req.body; //formData consists of username, email, and password
+    const userCheck = await User.findOne({username : formData.username}).lean(); //Finds user based on inputted username
+
+    //If user is found based on username, check if the inputted email and password matches
+    if (userCheck) {
+        const emailCheck = (userCheck.email === formData.email); //Checks if email matches
+        const passwordMatch = (userCheck.password === formData.password); //Checks if password matches
+
+        //If both email and password match, direct to confimation page for successful login
+        if (emailCheck && passwordMatch){
+            res.render('partials/users/confirmation', {Title: 'Login Confirmation', formData}); //Renders the confirmaton page upon successful login
+        }
+        //Otherwise, direct to error page
+        else {
+            res.render('error', { //Renders error page with title
+                Title: 'Login Failed',
+                errorCode: 404, //Error code
+                errorMsg: "Email and/or Password do not match. Please try again.", //Error message
+                errorLink: "/login", //Link for the button
+                errorBtnTxt: "Back to Login Page" //Text for the button to display
+            }); 
+        }
     }
+    //Otherwise, direct to error page
     else {
-        res.status(404).send('User not found');
+       res.render('error', { //Renders error page with title
+            Title: 'User Not Found',
+            errorCode: 404, //Error code
+            errorMsg: "User not found. Please try again.", //Error message
+            errorLink: "/login", //Link for the button
+            errorBtnTxt: "Back to Login Page" //Text for the button to display
+        }); 
     }
 });
+
+//Route for logging out (TO BE IMPLEMENTED PROPERLY IN PHASE 3)
+app.get('/logout', async (req, res) => {
+    //Code for disconnecting current user from the session
+    res.render('initial', {Title : 'Home Page'});
+});
+
+//Route for getting one user by username (only works if typed as URL, TO BE IMPLEMENTED PROPERLY IN PHASE 3)
+app.get('/edit-profile/:username', async (req, res) =>{
+    const findUser = await User.findOne({ username: req.params.username }).lean(); //Searches for a user under the specified username via URL
+    //If user if found, display in an 'edit profile' form
+    if (findUser) {
+      res.render('partials/users/edit-profile', {Title: 'Edit Profile', findUser}); //Provides existing user's info into the form
+    }
+    //Otherwise, throw 404 error
+    else {
+        res.render('error', { //Renders error page with title
+            Title: 'User Not Found',
+            errorCode: 404, //Error code
+            errorMsg: "User not found. Please try again.", //Error message
+            errorLink: "/", //Link for the button
+            errorBtnTxt: "Back to Homepage" //Text for the button to display
+        });
+    }
+});
+
+//Route for updating a user's data (TO BE IMPLEMENTED PROPERLY IN PHASE 3)
+app.post('/edit-profile/:username', async (req, res) => {
+    const formData = req.body; //Form data with updated user info
+    const updatedUser = await User.findOneAndUpdate({ username: req.params.username }, formData); //Updates the user with new info
+    //If user is updated in the server, direct to the confirmation page
+    if (updatedUser) {
+      res.render('partials/users/confirmation', {Title: 'User Edit Confirmation', formData}); //Renders the confirmaton page upon successful edit of profile
+    }
+    //Otherwise, throw 404 error
+    else {
+        res.render('error', { //Renders error page with title
+            Title: 'User Not Found',
+            errorCode: 404, //Error code
+            errorMsg: "User not found. Please try again.", //Error message
+            errorLink: "/", //Link for the button
+            errorBtnTxt: "Back to Homepage" //Text for the button to display
+        });
+    }
+});
+
+//========================
+//Flight Search Routes
+//========================
 
 // Route to show flight search page
 app.get('/searchFlight', async (req, res) => {
@@ -103,83 +184,6 @@ app.get('/searchFlight', async (req, res) => {
   }
 });
 
-//Route for getting login details (MCO 3)
-
-//Route for checking if user login details are in the DB (MCO 3)
-
-//Route for getting one user by username (TO BE FIXED)
-app.get('/edit-profile/:username', async (req, res) =>{
-  try{
-    const user = await User.findOne({ username: req.params.username }).lean();
-    //If user if found by inputted username, display in an 'edit profile' form
-    if (user) {
-      res.render('partials/users/edit-profile', {Title: 'Edit Profile', user});
-    }
-    //Otherwise, throw 404 error
-    else {
-      res.status(404).send('User not found');
-    }
-  } catch (err){
-    res.status(400).send('Invalid username');
-  }
-});
-
-//Route for updating a user's data (TO BE FIXED)
-app.post('/edit-profile/:username', async (req, res) => {
-  try{
-    const formData = req.body;
-    const updatedUser = await User.findOneAndUpdate({ username: formData.username }, req.body).lean();
-    //If user is updated in the server, direct to the confirmation page
-    if (updatedUser) {
-      res.render('partials/users/confirmation', {Title: 'User Edit Confirmation', updatedUser}); //Renders the confirmaton page upon successful edit of profile
-    }
-    //Otherwise, throw 404 error
-    else {
-      res.status(404).send('User not found');
-    }
-  } catch (err){
-    res.status(400).send('Error updating user');
-  }
-});
-
-//Route for getting login details (MCO 3)
-
-//Route for checking if user login details are in the DB (MCO 3)
-
-//Route for getting one user by username
-app.get('/users/edit-profile/:username', async (req, res) =>{
-  try{
-    const user = await User.findOne(req.params.username).lean();
-    //If user if found by inputted username, display in an 'edit profile' form
-    if (user) {
-      res.render('/users/edit-profile', {title: 'User Details', user});
-    }
-    //Otherwise, throw 404 error
-    else {
-      res.status(404).send('User not found');
-    }
-  } catch (err){
-    res.status(400).send('Invalid username');
-  }
-});
-
-//Route for updating a user's data
-app.post('/users/edit-profile/:username', async (req, res) => {
-  try{
-    const updatedUser = await User.findOneAndUpdate(req.params.username, req.body).lean();
-    //If user is updated in the server, direct to the confirmation page
-    if (updatedUser) {
-      res.render('/users/confirmation', {title: 'User Edit confirmation', updatedUser});
-    }
-    //Otherwise, throw 404 error
-    else {
-      res.status(404).send('User not found');
-    }
-  } catch (err){
-    res.status(400).send('Error updating user');
-  }
-});
-
 //route to get flight search results
  app.get("/search_flight", async (req, res) => {
     try {
@@ -193,7 +197,9 @@ app.post('/users/edit-profile/:username', async (req, res) => {
      }
  });
 
- // RESERVATION ROUTES
+//========================
+//Reservation List Routes
+//========================
 
 // Route to get reservations list (My Bookings)
 app.get('/reservations', async (req, res) => {
@@ -222,6 +228,10 @@ app.get('/reservations/my-bookings', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
+//========================
+//Reservation Form Routes
+//========================
 
 // Route to get reservation form for a specific flight
 app.get('/reservations/book/:flightId', async (req, res) => {
@@ -411,30 +421,14 @@ app.post('/reservations/:id/cancel', async (req, res) => {
     }
 });
 
-// const users = [
-//     { id: 1, name: 'Alice Johnson', email: 'alice@example.com', role:
-// 'Admin' },
-//     { id: 2, name: 'Bob Smith', email: 'bob@example.com', role: 'User' }, 
-//     { id: 3, name: 'Charlie Brown', email: 'charlie@example.com', role:
-// 'Moderator' }
-// ];
-// // Get all users 
-// app.get('/api/users', (req, res) => {
-//     res.json(users);
-// });
-// // Get one specific user by ID 
-// app.get('/api/users/:id', (req, res) => {
-// const userId = parseInt(req.params.id);
-// const user = users.find(u => u.id === userId);
-//   if (user) {
-//     res.json(user);
-// } else {
-//     res.status(404).json({ message: `User with ID ${userId} not found` }); }
-// });
+//====================
+
+//STARTING UP SERVER
+
+//====================
 
 app.use(express.static(__dirname));
 
-//Starting up the server
 app.listen(PORT, async () => {
     console.log(`Server running at http://localhost:${PORT}`);
 
