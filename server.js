@@ -24,7 +24,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/userdb')
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
 //Setting up Handlebars
-//Setting up Handlebars
 const hbs = exphbs.create({
     extname: "hbs",
     defaultLayout: "main",
@@ -59,7 +58,9 @@ app.set('views', './views');
 //Middleware
 app.use(express.urlencoded({ extended: true }));
 
-//========
+//==================
+// Helper Functions
+//==================
 
 //SeatMap
 function generateSeatMap(flight, reservedSeats = []) {
@@ -85,6 +86,8 @@ function generateSeatMap(flight, reservedSeats = []) {
 
     return seatRows;
 }
+
+//========
 
 //ROUTES
 
@@ -394,7 +397,7 @@ app.listen(PORT, async () => {
             email: 'joshua_habos@dlsu.edu.ph',
             phone: '09232130974',
             password: 'FlyingIsC00l',
-            role: 'Admin'
+            isAdmin: true
             },
 
             {username: 'Iv3r', firstName: 'Iverson Paul',
@@ -402,7 +405,7 @@ app.listen(PORT, async () => {
             email: 'iverson_alay@dlsu.edu.ph',
             phone: '09128990723',
             password: 'read4B00k',
-            role: 'Admin'
+            isAdmin: true
             },
 
             {username: 'Al', firstName: 'Alpha',
@@ -410,7 +413,7 @@ app.listen(PORT, async () => {
             email: 'alpha_omega@dlsu.edu.ph',
             phone: '09091223456',
             password: 'HaHatdog',
-            role: 'Admin'
+            isAdmin: true
             },
 
             {username: 'Quen', firstName: 'Quentin',
@@ -418,7 +421,7 @@ app.listen(PORT, async () => {
             email: 'quentin_tarantino@dlsu.edu.ph',
             phone: '09123456789',
             password: 'iM4kef1lm',
-            role: 'Admin'
+            isAdmin: true
             }
         ]);
         console.log('Admin users inserted into database.');
