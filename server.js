@@ -242,17 +242,39 @@ app.get('/searchFlight', async (req, res) => {
 });
 
 //route to get flight search results
- app.get("/search_flight", async (req, res) => {
+app.get("/search_flight", async (req, res) => {
     try {
-         const flights = await Flight.find();
-        
+        const { origin, destination, departureDate } = req.query;
 
-         res.render("flights/flight_results", { flights });
-     } catch (err) {
-         console.error(err);
-         res.status(500).send("No flight");
-     }
- });
+        let flights = [];
+        if (origin && destination && departureDate) {
+            const dayOfWeek = new Date(departureDate).toLocaleDateString("en-US", {
+                weekday: "long"
+            });
+
+            flights = await Flight.find({
+                origin,
+                destination,
+                daysOfWeek: dayOfWeek
+            }).lean();
+        }
+
+        res.render("partials/flights/search_flight", { 
+            Title: "Flight Search",
+            flights,      
+            search: {      
+                origin,
+                destination,
+                departureDate
+            }
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error searching flights");
+    }
+});
+
+
 
 //========================
 //Reservation List Routes
@@ -457,21 +479,45 @@ app.listen(PORT, async () => {
     }
 
     //Inserting dummy flight data if empty
-    const flights = await Flight.countDocuments();
-    if (flights === 0){
+    const flights = await Flight.countDocuments(); 
+    if (flights === 0) {
         await Flight.insertMany([
-            {flightNumber: 'test',
-            origin: 'NAIA',
-            destination: 'Tokyo',
-            schedule: 2025-11-16,
-            departure: '20:00',
-            arrival: '23:00',
-            aircraft: 'PAL',
-            capacity: '256'
+            {
+                flightNumber: "PAL123",
+                origin: "NAIA",
+                destination: "Tokyo",
+                daysOfWeek: ["Monday", "Thursday"],
+                departure: "20:00",
+                arrival: "23:00",
+                aircraft: "PAL",
+                capacity: 256,
+                price: 5000
+            },
+            {
+                flightNumber: "CEB800",
+                origin: "Cebu",
+                destination: "Seoul",
+                daysOfWeek: ["Tuesday", "Friday"],
+                departure: "10:00",
+                arrival: "14:00",
+                aircraft: "Cebu Pacific",
+                capacity: 180,
+                price: 4500
+            },
+            {
+                flightNumber: "CLK500",
+                origin: "Clark",
+                destination: "Manila",
+                daysOfWeek: ["Tuesday", "Friday"],
+                departure: "19:00",
+                arrival: "21:00",
+                aircraft: "Clark Airlines",
+                capacity: 200,
+                price: 150
             }
         ]);
-        console.log('Testing flight data inserted into database.');
     }
+    
 
 });
 

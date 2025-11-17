@@ -31,11 +31,12 @@
         <label for="origin" class="form-label">Origin</label>
         <select id="origin" class="form-select" required>
           <option value="">Select Origin</option>
-          <option value="NAIA">NAIA</option>
-          <option value="Clark">Clark</option>
-          <option value="Cebu">Cebu</option>
-          <option value="Davao">Davao</option>
+          <option value="NAIA" {{#if (eq search.origin "NAIA")}}selected{{/if}}>NAIA</option>
+          <option value="Clark" {{#if (eq search.origin "Clark")}}selected{{/if}}>Clark</option>
+          <option value="Cebu" {{#if (eq search.origin "Cebu")}}selected{{/if}}>Cebu</option>
+          <option value="Davao" {{#if (eq search.origin "Davao")}}selected{{/if}}>Davao</option>
         </select>
+
       </div>
 
       <div class="col-md-4">
@@ -47,7 +48,7 @@
 
       <div class="col-md-4">
         <label for="departure" class="form-label">Departure Date</label>
-        <input type="date" id="departure" class="form-control" required>
+        <input type="date" id="departure" class="form-control" value="{{search.departureDate}}">
       </div>
 
       <div class="col-md-4">
@@ -99,7 +100,7 @@
         {{#each flights}}
         <tr>
           <td>{{inc @index}}</td>
-          <td>{{airline}} {{flightNumber}}</td>
+          <td>{{aircraft}} {{flightNumber}}</td>
           <td>{{origin}} → {{destination}}</td>
           <td>{{schedule}}<br>{{departure}}</td>
           <td>{{arrival_schedule}}<br>{{arrival}}</td>
@@ -107,14 +108,21 @@
           <td>{{aircraft}}</td>
           <td>{{capacity}}</td>
           <td>
-            <a href="/reservations/create/{{_id}}" class="btn btn-primary btn-sm">Book</a>
+            <a href="/reservations/create/{{_id}}" 
+               class="btn btn-primary btn-sm select-flight" 
+               data-price="{{price}}" 
+               data-flightid="{{_id}}">
+               Book
+            </a>
           </td>
         </tr>
         {{/each}}
       </tbody>
     </table>
     {{else}}
+    {{#if search.origin}}
     <p class="text-center text-muted mt-5">No flights found.</p>
+    {{/if}}
     {{/if}}
   </div>
 
@@ -137,31 +145,44 @@
           destSelect.append(`<option value="${dest}">${dest}</option>`);
         });
       }
+
+      {{#if search.destination}}
+      destSelect.val("{{search.destination}}");
+      {{/if}}
     });
 
+    // NEW SEARCH HANDLER
     $("#searchForm").on("submit", function(e) {
       e.preventDefault();
+
       const origin = $("#origin").val();
       const destination = $("#destination").val();
       const departure = $("#departure").val();
-      const ret = $("#return").val() || "N/A";
+
+      window.location.href = `/search_flight?origin=${origin}&destination=${destination}&departureDate=${departure}`;
+    });
+    $(".select-flight").on("click", function(e) {
+      e.preventDefault(); // prevent immediate navigation
+      const price = $(this).data("price");
+      const flightId = $(this).data("flightid");
       const passengers = parseInt($("#passengers").val());
-      const baseFare = 1000; // example price per passenger
-      const totalPrice = baseFare * passengers;
 
-      $("#SOrigin").text(origin);
-      $("#SDestination").text(destination);
-      $("#SDeparture").text(departure);
-      $("#SReturn").text(ret);
+      $("#SOrigin").text($("#origin").val());
+      $("#SDestination").text($("#destination").val());
+      $("#SDeparture").text($("#departure").val());
+      $("#SReturn").text($("#return").val() || "N/A");
       $("#SPassengers").text(passengers);
-      $("#SPrice").text(totalPrice.toLocaleString());
-      $("#summary").removeClass("d-none");
-    });
+      $("#SPrice").text((price * passengers).toLocaleString());
 
-    $("#ResFormBtn").click(function() {
-      window.location.href = "/reservations/Reservation_Form"; // adjust to your route
+      $("#summary").removeClass("d-none");
+
+      // Optionally navigate to reservation form after summary calculation
+      $("#ResFormBtn").off("click").on("click", function() {
+        window.location.href = `/reservations/create/${flightId}`;
+      });
     });
-  </script>
+</script>
+
 </body>
 </html>
 

@@ -20,12 +20,20 @@ const FlightSchema = new mongoose.Schema({
         trim: true
     },
 
-    //Date of takeoff; no time
-    schedule: {
-        type: Date, //YYYY-MM-DD
+    daysOfWeek: {
+        type: [String],
         required: true,
-        trim: true
+        enum: [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday"
+        ]
     },
+
 
     //Departure and arrival times are included; will be in string for now
     departure: {
@@ -50,7 +58,13 @@ const FlightSchema = new mongoose.Schema({
         type: Number,
         required: true,
         trim: true
+    },
+    
+    price: {
+        type: Number,
+        required: true
     }
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('Flight', FlightSchema);
