@@ -47,7 +47,8 @@ const hbs = exphbs.create({
                 month: "long",
                 day: "numeric"
             });
-        }
+        },
+        shorten: (id) => id ? id.toString().substring(0,8) : ""
     }
 });
 
@@ -63,28 +64,31 @@ app.use(express.urlencoded({ extended: true }));
 //==================
 
 //SeatMap
+//SeatMap
 function generateSeatMap(flight, reservedSeats = []) {
-    const rows = 10;
-    const seatsPerRow = 4;
+  const ROWS = 15;  
+  const LETTERS = ["A", "B", "C", "D", "E", "F"];  
 
-    let seatRows = [];
+  const seatRows = [];
 
-    for (let r = 1; r <= rows; r++) {
-        let aisle1 = [];
-        let aisle2 = [];
+  for (let r = 1; r <= ROWS; r++) {
 
-        for (let s = 1; s <= seatsPerRow; s++) {
-            const seatId = `${r}${String.fromCharCode(64 + s)}`;
-            const isReserved = reservedSeats.includes(seatId);
+    const aisle1 = []; 
+    const aisle2 = []; 
 
-            if (s <= 2) aisle1.push({ id: seatId, isReserved });
-            else aisle2.push({ id: seatId, isReserved });
-        }
+    for (let i = 0; i < LETTERS.length; i++) {
+      const seatId = `${r}${LETTERS[i]}`;
+      const isReserved = reservedSeats.includes(seatId);
+      const seatObj = { id: seatId, isReserved };
 
-        seatRows.push({ aisle1, aisle2 });
+      if (i < 3) aisle1.push(seatObj);     
+      else aisle2.push(seatObj);          
     }
 
-    return seatRows;
+    seatRows.push({ aisle1, aisle2 });
+  }
+
+  return seatRows;
 }
 
 //========
@@ -256,13 +260,15 @@ app.get('/searchFlight', async (req, res) => {
 
  // RESERVATION ROUTES
 
-app.get("/reservations/create", (req, res) => {
+ app.get("/reservations/create", (req, res) => {
     res.redirect("/flights/Flights");
 });
  
  //Get reservations list loads reservation form
 app.get("/reservations/create/:flightId", async (req, res) => {
-    const flight = await Flight.findById(req.params.flightId);
+    try{
+    const flight = await Flight.findById(req.params.flightId).lean();
+    if (!flight) return res.status(404).send("Flight not found");
 
     const reservedSeats = await Reservation.find({ 
         flight: flight._id,
@@ -273,13 +279,21 @@ app.get("/reservations/create/:flightId", async (req, res) => {
 
     res.render("partials/reservations/Reservation_Form", {
         flight,
-        seatRows
-    });
+        seatRows});
+    } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading form");
+  }
 });
 
 
  //Saves new reservation
-app.post("/reservations/create", async (req, res) => {
+ app.post("/reservations/create", async (req, res) => {
+    try{
+    if (!req.body.flight || !req.body.seat) {
+      return res.status(400).send("Flight and seat required");
+    }
+
     const newReservation = await Reservation.create({
         reserveUser: req.body.reserveUser,
         reserveEmail: req.body.reserveEmail,
@@ -290,23 +304,33 @@ app.post("/reservations/create", async (req, res) => {
         baggage: req.body.baggage,
         status: "succeed"
     });
-
-  res.redirect(`/reservations/${newReservation._id}/summary`);
+    
+    res.redirect(`/reservations/${newReservation._id}/summary`);
+    } catch (err) {
+    console.error(err);
+    res.status(500).send("Error creating reservation");
+  }
 });
 
 
 //Show list of all reservations.
 app.get("/reservations/my-bookings", async (req, res) => {
+    try{
     const reservations = await Reservation
         .find()
-        .populate("flight");
+        .populate("flight")
+        .lean();
 
     res.render("partials/reservations/Reservation_List", { reservations });
+    } catch (err) {
+    console.error(err); res.status(500).send("Error loading reservations");
+  }
 });
 
 
 //Edit Reservations Page
 app.get("/reservations/:id/edit", async (req, res) => {
+    try{
     const reservation = await Reservation.findById(req.params.id).populate("flight");
 
     const reservedSeats = await Reservation.find({
@@ -315,68 +339,73 @@ app.get("/reservations/:id/edit", async (req, res) => {
         _id: { $ne: reservation._id }
     }).distinct("seat");
 
-    const seatRows = generateSeatMap(reservation.flight, reservedSeats);
+    const seatRows = generateSeatMap(reservation.flight, reservedSeats).map(row => {
+      row.aisle1 = row.aisle1.map(s => ({ ...s, isSelected: s.id === reservation.seat }));
+      row.aisle2 = row.aisle2.map(s => ({ ...s, isSelected: s.id === reservation.seat }));
+      return row;});
 
     res.render("partials/reservations/Reservation_Edit", {
         reservation,
         seatRows
-    });
+    });} catch (err) {
+    console.error(err); res.status(500).send("Error loading edit form");
+  }
 });
 
 //Update Reservations Page
 app.post("/reservations/:id/edit", async (req, res) => {
-    const updated = await Reservation.findByIdAndUpdate(
-        req.params.id,
-        {
-            seat: req.body.seat,
-            meal: req.body.meal,
-            baggage: req.body.baggage
-        },
-        { new: true }
-    );
+  try {
+    await Reservation.findByIdAndUpdate(req.params.id, {
+      seat: req.body.seat,
+      meal: req.body.meal,
+      baggage: req.body.baggage
+    });
 
-    res.redirect(`/reservations/${updated._id}/summary`);
+    res.redirect(`/reservations/${req.params.id}/summary`);
+  } catch (err) {
+    console.error(err); res.status(500).send("Error updating reservation");
+  }
 });
 
 //Mark reservation as cancelled.
 app.post("/reservations/:id/cancel", async (req, res) => {
-    await Reservation.findByIdAndUpdate(req.params.id, {
-        status: "cancelled"
-    });
-
+  try {
+    await Reservation.findByIdAndUpdate(req.params.id, { status: "cancelled" });
     res.redirect("/reservations/my-bookings");
+  } catch (err) {
+    console.error(err); res.status(500).send("Error cancelling");
+  }
 });
 
 //Show reservation summary with fare breakdown.
 
 app.get("/reservations/:id/summary", async (req, res) => {
-    const reservation = await Reservation.findById(req.params.id).populate("flight");
+  try {
+    const reservation = await Reservation.findById(req.params.id).populate("flight").lean();
+    if (!reservation) return res.status(404).send("Reservation not found");
 
+    // Price logic (your preserved computation)
     let baseFare = 5000;
     let baggageFee = 0;
     let mealFee = 0;
 
     switch (reservation.baggage) {
-        case "small": baggageFee = 500; break;
-        case "medium": baggageFee = 1000; break;
-        case "large": baggageFee = 1500; break;
+      case "small": baggageFee = 500; break;
+      case "medium": baggageFee = 1000; break;
+      case "large": baggageFee = 1500; break;
     }
-
-    if (reservation.meal !== "standard") {
-        mealFee = 300;
-    }
+    if (reservation.meal && reservation.meal !== "standard") mealFee = 300;
 
     const total = baseFare + baggageFee + mealFee;
 
-    res.render("partials/reservations/Reservation_Summary", {
-        reservation,
-        flight: reservation.flight,
-        baggageFee,
-        mealFee,
-        total
+    res.render("/partials/reservations/Reservation_Summary", {
+      reservation, flight: reservation.flight, baggageFee, mealFee, total
     });
-});
 
+  } catch (err) {
+    console.error(err); res.status(500).send("Error loading summary");
+  }
+});
 //====================
 
 //STARTING UP SERVER
@@ -445,6 +474,7 @@ app.listen(PORT, async () => {
     }
 
 });
+
 
 
 
