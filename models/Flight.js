@@ -34,7 +34,6 @@ const FlightSchema = new mongoose.Schema({
         ]
     },
 
-
     //Departure and arrival times are included; will be in string for now
     departure: {
         type: String, //##:## (TIMEZONE), in military format
