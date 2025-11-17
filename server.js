@@ -8,7 +8,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const exphbs = require('express-handlebars');
-
+const path = require('path');
 //Importing models
 const User = require('./models/User');
 const Flight = require('./models/Flight');
@@ -24,17 +24,54 @@ mongoose.connect('mongodb://127.0.0.1:27017/userdb')
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
 //Setting up Handlebars
-app.engine('hbs', exphbs.engine({
-  extname: 'hbs',
-  defaultLayout: 'main'
-}));
-app.set('view engine', 'hbs');
+//Setting up Handlebars
+const hbs = exphbs.create({
+    extname: "hbs",
+    defaultLayout: "main",
+    partialsDir: path.join(__dirname, "/views/partials"),
+    helpers: {
+        json: function (context) {
+            return JSON.stringify(context);
+        },
+        eq: function (a, b) {
+            return a === b;
+        }
+    }
+});
+
+app.engine("hbs", hbs.engine);
+app.set("view engine", "hbs");
 app.set('views', './views');
 
 //Middleware
 app.use(express.urlencoded({ extended: true }));
 
 //========
+
+//SeatMap
+function generateSeatMap(flight, reservedSeats = []) {
+    const rows = 10;
+    const seatsPerRow = 4;
+
+    let seatRows = [];
+
+    for (let r = 1; r <= rows; r++) {
+        let aisle1 = [];
+        let aisle2 = [];
+
+        for (let s = 1; s <= seatsPerRow; s++) {
+            const seatId = `${r}${String.fromCharCode(64 + s)}`;
+            const isReserved = reservedSeats.includes(seatId);
+
+            if (s <= 2) aisle1.push({ id: seatId, isReserved });
+            else aisle2.push({ id: seatId, isReserved });
+        }
+
+        seatRows.push({ aisle1, aisle2 });
+    }
+
+    return seatRows;
+}
 
 //ROUTES
 
@@ -201,224 +238,127 @@ app.get('/searchFlight', async (req, res) => {
 //Reservation List Routes
 //========================
 
-// Route to get reservations list (My Bookings)
-app.get('/reservations', async (req, res) => {
-    try {
-        const reservations = await Reservation.find().populate('flight').lean();
-        res.render('partials/reservations/Reservation_List', {
-            Title: 'Your Reservations',
-            reservations
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server Error');
-    }
+ // RESERVATION ROUTES
+
+app.get("/reservations/create", (req, res) => {
+    res.redirect("/flights/Flights");
+});
+ 
+ //Get reservations list loads reservation form
+app.get("/reservations/create/:flightId", async (req, res) => {
+    const flight = await Flight.findById(req.params.flightId);
+
+    const reservedSeats = await Reservation.find({ 
+        flight: flight._id,
+        status: "succeed"
+    }).distinct("seat");
+
+    const seatRows = generateSeatMap(flight, reservedSeats);
+
+    res.render("partials/reservations/Reservation_Form", {
+        flight,
+        seatRows
+    });
 });
 
-// Alternative route for My Bookings
-app.get('/reservations/my-bookings', async (req, res) => {
-    try {
-        const reservations = await Reservation.find().populate('flight');
-        res.render('Reservation_List', {
-            Title: 'Your Reservations',
-            reservations
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Server Error');
-    }
+
+ //Saves new reservation
+app.post("/reservations/create", async (req, res) => {
+    const newReservation = await Reservation.create({
+        reserveUser: req.body.reserveUser,
+        reserveEmail: req.body.reserveEmail,
+        passportNo: req.body.passportNo,
+        flight: req.body.flight,
+        seat: req.body.seat,
+        meal: req.body.meal,
+        baggage: req.body.baggage,
+        status: "succeed"
+    });
+
+  res.redirect(`/reservations/${newReservation._id}/summary`);
 });
 
-//========================
-//Reservation Form Routes
-//========================
 
-// Route to get reservation form for a specific flight
-app.get('/reservations/book/:flightId', async (req, res) => {
-    try {
-        const flight = await Flight.findById(req.params.flightId);
-        if (!flight) return res.status(404).send("Flight not found");
+//Show list of all reservations.
+app.get("/reservations/my-bookings", async (req, res) => {
+    const reservations = await Reservation
+        .find()
+        .populate("flight");
 
-        // Get reserved seats for this flight
-        const existingReservations = await Reservation.find({
-            flight: req.params.flightId,
-            status: 'succeed'
-        });
-        const reservedSeats = existingReservations.map(r => r.seatNo);
-
-        const seatRows = [
-            {
-                aisle1: ["1A", "1B", "1C"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id)
-                })),
-                aisle2: ["1D", "1E", "1F"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id)
-                }))
-            },
-            {
-                aisle1: ["2A", "2B", "2C"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id)
-                })),
-                aisle2: ["2D", "2E", "2F"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id)
-                }))
-            },
-            {
-                aisle1: ["3A", "3B", "3C"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id)
-                })),
-                aisle2: ["3D", "3E", "3F"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id)
-                }))
-            },
-            {
-                aisle1: ["4A", "4B", "4C"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id)
-                })),
-                aisle2: ["4D", "4E", "4F"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id)
-                }))
-            }
-        ];
-
-        res.render("Reservation_Form", {
-            flight,
-            seatRows,
-            Title: 'Book Flight'
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Server Error");
-    }
+    res.render("partials/reservations/Reservation_List", { reservations });
 });
 
-// Route for creating a new reservation
-app.post('/reservations', async (req, res) => {
-    try {
-        const { flight, reserveUser, reserveEmail, passportNo, seatNo, extraBaggage, meal } = req.body;
 
-        const reservation = new Reservation({
-            reserveID: `RES-${Date.now()}`,
-            reserveUser,
-            reserveEmail,
-            passportNo,
-            flight,
-            seatNo,
-            extraBaggage,
-            meal,
-            status: 'succeed'
-        });
+//Edit Reservations Page
+app.get("/reservations/:id/edit", async (req, res) => {
+    const reservation = await Reservation.findById(req.params.id).populate("flight");
 
-        await reservation.save();
-        res.redirect('/reservations');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Server Error");
-    }
+    const reservedSeats = await Reservation.find({
+        flight: reservation.flight._id,
+        status: "succeed",
+        _id: { $ne: reservation._id }
+    }).distinct("seat");
+
+    const seatRows = generateSeatMap(reservation.flight, reservedSeats);
+
+    res.render("partials/reservations/Reservation_Edit", {
+        reservation,
+        seatRows
+    });
 });
 
-// Route to edit reservation form
-app.get('/reservations/:id/edit', async (req, res) => {
-    try {
-        const reservation = await Reservation.findById(req.params.id).populate("flight");
-        if (!reservation) return res.status(404).send("Reservation not found");
+//Update Reservations Page
+app.post("/reservations/:id/edit", async (req, res) => {
+    const updated = await Reservation.findByIdAndUpdate(
+        req.params.id,
+        {
+            seat: req.body.seat,
+            meal: req.body.meal,
+            baggage: req.body.baggage
+        },
+        { new: true }
+    );
 
-        const allReservations = await Reservation.find({
-            flight: reservation.flight._id,
-            status: 'succeed'
-        });
-
-        const reservedSeats = allReservations.map(r => r.seatNo);
-
-        const seatRows = [
-            {
-                aisle1: ["1A", "1B", "1C"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id) && id !== reservation.seatNo
-                })),
-                aisle2: ["1D", "1E", "1F"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id) && id !== reservation.seatNo
-                }))
-            },
-            {
-                aisle1: ["2A", "2B", "2C"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id) && id !== reservation.seatNo
-                })),
-                aisle2: ["2D", "2E", "2F"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id) && id !== reservation.seatNo
-                }))
-            },
-            {
-                aisle1: ["3A", "3B", "3C"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id) && id !== reservation.seatNo
-                })),
-                aisle2: ["3D", "3E", "3F"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id) && id !== reservation.seatNo
-                }))
-            },
-            {
-                aisle1: ["4A", "4B", "4C"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id) && id !== reservation.seatNo
-                })),
-                aisle2: ["4D", "4E", "4F"].map(id => ({
-                    id,
-                    isReserved: reservedSeats.includes(id) && id !== reservation.seatNo
-                }))
-            }
-        ];
-
-        res.render("edit-reservation", {
-            reservation,
-            seatRows,
-            Title: 'Edit Reservation'
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Server Error");
-    }
+    res.redirect(`/reservations/${updated._id}/summary`);
 });
 
-// Route to update reservation
-app.post('/reservations/:id/edit', async (req, res) => {
-    try {
-        const { seatNo, meal, extraBaggage } = req.body;
-        await Reservation.findByIdAndUpdate(req.params.id, {
-            seatNo,
-            meal,
-            extraBaggage
-        });
-        res.redirect('/reservations');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error updating reservation");
-    }
+//Mark reservation as cancelled.
+app.post("/reservations/:id/cancel", async (req, res) => {
+    await Reservation.findByIdAndUpdate(req.params.id, {
+        status: "cancelled"
+    });
+
+    res.redirect("/reservations/my-bookings");
 });
 
-// Route to cancel reservation
-app.post('/reservations/:id/cancel', async (req, res) => {
-    try {
-        await Reservation.findByIdAndUpdate(req.params.id, {
-            status: "canceled"
-        });
-        res.redirect("/reservations");
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error cancelling reservation");
+//Show reservation summary with fare breakdown.
+
+app.get("/reservations/:id/summary", async (req, res) => {
+    const reservation = await Reservation.findById(req.params.id).populate("flight");
+
+    let baseFare = 5000;
+    let baggageFee = 0;
+    let mealFee = 0;
+
+    switch (reservation.baggage) {
+        case "small": baggageFee = 500; break;
+        case "medium": baggageFee = 1000; break;
+        case "large": baggageFee = 1500; break;
     }
+
+    if (reservation.meal !== "standard") {
+        mealFee = 300;
+    }
+
+    const total = baseFare + baggageFee + mealFee;
+
+    res.render("partials/reservations/Reservation_Summary", {
+        reservation,
+        flight: reservation.flight,
+        baggageFee,
+        mealFee,
+        total
+    });
 });
 
 //====================
@@ -489,6 +429,7 @@ app.listen(PORT, async () => {
     }
 
 });
+
 
 
 
