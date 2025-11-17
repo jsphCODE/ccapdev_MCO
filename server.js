@@ -282,7 +282,7 @@ app.get("/search_flight", async (req, res) => {
 
  // RESERVATION ROUTES
 
- app.get("/reservations/create", (req, res) => {
+app.get("/reservations/create", (req, res) => {
     res.redirect("/flights/Flights");
 });
  
@@ -353,7 +353,7 @@ app.get("/reservations/my-bookings", async (req, res) => {
 //Edit Reservations Page
 app.get("/reservations/:id/edit", async (req, res) => {
     try{
-    const reservation = await Reservation.findById(req.params.id).populate("flight");
+    const reservation = await Reservation.findById(req.params.id).populate("flight").lean();
 
     const reservedSeats = await Reservation.find({
         flight: reservation.flight._id,
@@ -377,15 +377,25 @@ app.get("/reservations/:id/edit", async (req, res) => {
 //Update Reservations Page
 app.post("/reservations/:id/edit", async (req, res) => {
   try {
-    await Reservation.findByIdAndUpdate(req.params.id, {
-      seat: req.body.seat,
-      meal: req.body.meal,
-      baggage: req.body.baggage
-    });
+    const updatedReservation = await Reservation.findByIdAndUpdate(
+      req.params.id, 
+      {
+        seat: req.body.seat,
+        meal: req.body.meal,
+        baggage: req.body.baggage
+      },
+      { new: true, runValidators: true } // Return updated doc and validate
+    );
 
-    res.redirect(`/reservations/${req.params.id}/summary`);
+    if (!updatedReservation) {
+      return res.status(404).send("Reservation not found");
+    }
+
+    // Redirect to the reservations list instead of summary
+    res.redirect("/reservations/my-bookings");
   } catch (err) {
-    console.error(err); res.status(500).send("Error updating reservation");
+    console.error(err); 
+    res.status(500).send("Error updating reservation");
   }
 });
 
@@ -420,7 +430,7 @@ app.get("/reservations/:id/summary", async (req, res) => {
 
     const total = baseFare + baggageFee + mealFee;
 
-    res.render("/partials/reservations/Reservation_Summary", {
+    res.render("partials/reservations/Reservation_Summary", {
       reservation, flight: reservation.flight, baggageFee, mealFee, total
     });
 
@@ -520,6 +530,7 @@ app.listen(PORT, async () => {
     
 
 });
+
 
 
 
