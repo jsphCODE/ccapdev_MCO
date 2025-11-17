@@ -1,14 +1,6 @@
 const mongoose = require('mongoose');
 
 const ReservationSchema = new mongoose.Schema({
-    //Unique ID for identifying specific reservation
-    reserveID: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true
-    },
-
     //RESERVING USER INFO
 
     reserveUser: {
@@ -71,3 +63,4 @@ const ReservationSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model('Reservation', ReservationSchema); //Makes the model usable 
+
