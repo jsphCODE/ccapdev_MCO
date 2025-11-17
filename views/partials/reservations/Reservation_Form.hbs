@@ -1,176 +1,167 @@
 <h1 class="mb-4">Reservation Form</h1>
 
-<style>
-.seat{
-    width: 50px;
-    height: 50px;
-    margin: 5px;
-}
-.seat.selected{
-    background-color: green;
-    color: white;
-}
-.seat.reserved{
-    background-color: #dc3545;
-    color: white;
-    pointer-events: none;
-}
-.seat.available{
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-}
-</style>
-
 {{#if flight}}
-<div class="flight-info mb-3">
-    <h4>Flight Details</h4>
-    <p><strong>Flight:</strong> {{flight.flightNumber}}</p>
-    <p><strong>Route:</strong> {{flight.origin}} → {{flight.destination}}</p>
-    <p><strong>Date:</strong> {{formatDate flight.schedule}}</p>
-    <p><strong>Departure:</strong> {{flight.departure}} | <strong>Arrival:</strong> {{flight.arrival}}</p>
+<div class="flight-info mb-3 card p-3">
+  <h4>Flight Details</h4>
+  <p><strong>Flight:</strong> {{flight.flightNumber}}</p>
+  <p><strong>Route:</strong> {{flight.origin}} → {{flight.destination}}</p>
+  <p><strong>Date:</strong> {{formatDate flight.schedule}}</p>
+  <p><strong>Departure:</strong> {{flight.departure}} | <strong>Arrival:</strong> {{flight.arrival}}</p>
 </div>
 {{/if}}
 
 <form id="reservationForm" action="/reservations/create" method="POST">
-
-    <input type="hidden" name="flight" value="{{flight._id}}">
-
-    <h4>Passenger Information</h4>
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Full Name *</label>
-            <input type="text" name="reserveUser" class="form-control" required>
-        </div>
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Email *</label>
-            <input type="email" name="reserveEmail" class="form-control" required>
-        </div>
+  <input type="hidden" name="flight" value="{{flight._id}}">
+  <h4>Passenger Information</h4>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Full Name *</label>
+      <input type="text" name="reserveUser" class="form-control" required>
     </div>
-
-    <div class="mb-3">
-        <label class="form-label">Passport Number *</label>
-        <input type="text" name="passportNo" class="form-control" required>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Email *</label>
+      <input type="email" name="reserveEmail" class="form-control" required>
     </div>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Passport Number *</label>
+    <input type="text" name="passportNo" class="form-control" required>
+  </div>
 
-    <h4>Seat Selection</h4>
+  <h4>Seat Selection</h4>
+  <div class="mb-3">
+   {{#each seatRows}}
+<div class="row justify-content-center mb-2">
 
-    <div class="mb-3">
-        {{#each seatRows}}
-        <div class="row justify-content-center mb-2">
-            <div class="col-auto">
-                {{#each this.aisle1}}
-                <button type="button"
-                        class="btn seat {{#if this.isReserved}}reserved{{else}}available{{/if}}"
-                        data-seat="{{this.id}}"
-                        {{#if this.isReserved}}disabled{{/if}}>
-                    {{this.id}}
-                </button>
-                {{/each}}
-            </div>
-
-            <div class="col-auto">
-                {{#each this.aisle2}}
-                <button type="button"
-                        class="btn seat {{#if this.isReserved}}reserved{{else}}available{{/if}}"
-                        data-seat="{{this.id}}"
-                        {{#if this.isReserved}}disabled{{/if}}>
-                    {{this.id}}
-                </button>
-                {{/each}}
-            </div>
-        </div>
+    <div class="col-auto">
+        {{#each this.aisle1}}
+        <button type="button"
+            class="btn seat {{#if this.isReserved}}reserved{{else}}available{{/if}}"
+            data-seat="{{this.id}}"
+            {{#if this.isReserved}}disabled{{/if}}>
+            {{this.id}}
+        </button>
         {{/each}}
     </div>
 
-    <input type="hidden" id="seat" name="seat">
-
-    <h4>Optional Packages</h4>
-
-    <div class="mb-3">
-        <label class="form-label">Meal Options:</label>
-        <select name="meal" id="meal" class="form-select">
-            <option value="standard">Standard</option>
-            <option value="vegetarian">Vegetarian</option>
-            <option value="kosher">Kosher</option>
-            <option value="etc">Other</option>
-        </select>
+    <div class="col-auto">
+        {{#each this.aisle2}}
+        <button type="button"
+            class="btn seat {{#if this.isReserved}}reserved{{else}}available{{/if}}"
+            data-seat="{{this.id}}"
+            {{#if this.isReserved}}disabled{{/if}}>
+            {{this.id}}
+        </button>
+        {{/each}}
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Extra Baggage:</label>
-        <select id="baggage" name="baggage" class="form-select">
-            <option value="none">None</option>
-            <option value="small">Small</option>
-            <option value="medium">Medium</option>
-            <option value="large">Large</option>
-        </select>
-    </div>
+</div>
+{{/each}}
+  </div>
 
-    <div id="summary" class="alert alert-info d-none"></div>
+  <input type="hidden" id="seat" name="seat">
 
-    <div class="text-center">
-        <button type="submit" class="btn btn-primary btn-lg">Submit Reservation</button>
-        <a href="/flights/search" class="btn btn-secondary btn-lg">Cancel</a>
-    </div>
+  <h4>Optional Packages</h4>
+  <div class="mb-3">
+    <label class="form-label">Meal Options:</label>
+    <select name="meal" id="meal" class="form-select">
+      <option value="standard">Standard</option>
+      <option value="vegetarian">Vegetarian</option>
+      <option value="kosher">Kosher</option>
+      <option value="etc">Other</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Extra Baggage:</label>
+    <select id="baggage" name="baggage" class="form-select">
+      <option value="none">None</option>
+      <option value="small">Small</option>
+      <option value="medium">Medium</option>
+      <option value="large">Large</option>
+    </select>
+  </div>
+
+  <div id="summary" class="alert alert-info d-none"></div>
+
+  <div class="text-center">
+    <button type="submit" class="btn btn-primary btn-lg">Submit Reservation</button>
+    <a href="/flights/Flights" class="btn btn-secondary btn-lg">Cancel</a>
+  </div>
 </form>
+
+<style>
+  .seat{ width:50px; height:50px; margin:5px; }
+  .seat.selected{ background:green;color:#fff; }
+  .seat.reserved{ background:#dc3545;color:#fff; pointer-events:none; }
+  .seat.available{ background:#f8f9fa;border:1px solid #dee2e6; }
+</style>
 
 <script>
 $(document).ready(function () {
 
-    // Preserve your original seat selection logic
-    $(".seat.available").on("click", function () {
+    let readyToSubmit = false;
+
+    $(".seat").on("click", function () {
+
+        if ($(this).hasClass("reserved")) return;
+
         $(".seat").removeClass("selected");
         $(this).addClass("selected");
 
         $("#seat").val($(this).data("seat"));
+
+        console.log("Selected seat:", $("#seat").val());   
     });
 
-    // Preserve your original price computation logic
     $("#reservationForm").on("submit", function (e) {
-        e.preventDefault();
 
-        let meal = $("#meal").val();
-        let seat = $("#seat").val();
-        let baggage = $("#baggage").val();
+        if (!readyToSubmit) {
+            e.preventDefault();
 
-        if (!seat) {
+            const meal = $("#meal").val();
+            const seat = $("#seat").val();
+            const baggage = $("#baggage").val();
+
+            if (!seat) {
+                $("#summary")
+                    .removeClass("d-none alert-info")
+                    .addClass("alert-danger")
+                    .html("Error: Please select a seat before proceeding.");
+                return;
+            }
+
+            let baseFare = 5000;
+            let baggageFee = 0;
+
+            if (baggage === "small") baggageFee = 500;
+            if (baggage === "medium") baggageFee = 1000;
+            if (baggage === "large") baggageFee = 1500;
+
+            let mealFee = meal !== "standard" ? 300 : 0;
+            let total = baseFare + baggageFee + mealFee;
+
+            const summaryHtml = `
+                <h5>Reservation Summary</h5>
+                Meal: ${meal}<br>
+                Seat: ${seat}<br>
+                Extra Baggage: ${baggage}<br>
+                <hr>
+                Total Price: ₱${total.toLocaleString()}<br>
+                <small>Click Submit again to confirm booking.</small>
+            `;
+
             $("#summary")
-                .removeClass("d-none alert-info")
-                .addClass("alert-danger")
-                .html("Error: Please select a seat before proceeding.");
+                .removeClass("d-none alert-danger")
+                .addClass("alert-info")
+                .html(summaryHtml);
+
+            readyToSubmit = true;
             return;
         }
 
-        // Pricing logic (from your file)
-        let baseFare = 5000;
-        let baggageFee = 0;
-
-        switch (baggage) {
-            case "small": baggageFee = 500; break;
-            case "medium": baggageFee = 1000; break;
-            case "large": baggageFee = 1500; break;
-        }
-
-        let mealFee = (meal !== "standard") ? 300 : 0;
-
-        let total = baseFare + baggageFee + mealFee;
-
-        let summaryHtml = `
-            <h5>Reservation Summary</h5>
-            Meal: ${meal}<br>
-            Seat: ${seat}<br>
-            Extra Baggage: ${baggage.charAt(0).toUpperCase() + baggage.slice(1)}<br>
-            <hr>
-            Total Price: ₱${total.toLocaleString()}<br>
-            <button type="submit" class="btn btn-success mt-3">Confirm Booking</button>
-        `;
-
-        $("#summary")
-            .removeClass("d-none alert-danger")
-            .addClass("alert-info")
-            .html(summaryHtml);
+        return true;
     });
 });
 </script>
-
 

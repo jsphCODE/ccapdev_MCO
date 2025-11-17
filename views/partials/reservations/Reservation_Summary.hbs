@@ -1,53 +1,31 @@
-<div class="container mt-5">
-    <div class="card shadow p-4">
-        <h2 class="text-center mb-4">Reservation Summary</h2>
+<div class="card p-3">
+  <h2 class="mb-3">Reservation Summary</h2>
 
-        {{!-- Flight Information --}}
-        <h4>Flight Information</h4>
-        <p><strong>Flight:</strong> {{flight.flightNumber}}</p>
-        <p><strong>Route:</strong> {{flight.origin}} → {{flight.destination}}</p>
-        <p><strong>Date:</strong> {{formatDate flight.schedule}}</p>
-        <p><strong>Departure:</strong> {{flight.departure}}</p>
-        <p><strong>Arrival:</strong> {{flight.arrival}}</p>
+  <h4>Flight</h4>
+  <p>{{flight.flightNumber}} — {{flight.origin}} → {{flight.destination}}</p>
+  <p>{{formatDate flight.schedule}} | {{flight.departure}} → {{flight.arrival}}</p>
 
-        <hr>
+  <hr>
+  <h4>Passenger</h4>
+  <p><strong>{{reservation.reserveUser}}</strong></p>
+  <p>{{reservation.reserveEmail}}</p>
+  <p>{{reservation.passportNo}}</p>
 
-        {{!-- Passenger --}}
-        <h4>Passenger Information</h4>
-        <p><strong>Name:</strong> {{reservation.reserveUser}}</p>
-        <p><strong>Email:</strong> {{reservation.reserveEmail}}</p>
-        <p><strong>Passport No.:</strong> {{reservation.passportNo}}</p>
+  <hr>
+  <h4>Reservation</h4>
+  <p><strong>Seat:</strong> {{reservation.seat}}</p>
+  <p><strong>Meal:</strong> {{reservation.meal}}</p>
+  <p><strong>Baggage:</strong> {{reservation.baggage}}</p>
 
-        <hr>
+  <hr>
+  <h4>Price</h4>
+  <p>Base Fare: ₱5,000</p>
+  {{#if baggageFee}}<p>Baggage Fee: ₱{{baggageFee}}</p>{{/if}}
+  {{#if mealFee}}<p>Meal Fee: ₱{{mealFee}}</p>{{/if}}
+  <h3>Total: ₱{{total}}</h3>
 
-        {{!-- Reservation --}}
-        <h4>Reservation Details</h4>
-        <p><strong>Seat:</strong> {{reservation.seat}}</p>
-        <p><strong>Meal:</strong> {{reservation.meal}}</p>
-        <p><strong>Baggage:</strong> {{reservation.baggage}}</p>
-
-        <hr>
-
-        {{!-- Price Breakdown --}}
-        <h4>Price Breakdown</h4>
-
-        <p><strong>Base Fare:</strong> ₱5,000</p>
-
-        {{#if baggageFee}}
-        <p><strong>Baggage Fee:</strong> ₱{{baggageFee}}</p>
-        {{/if}}
-
-        {{#if mealFee}}
-        <p><strong>Meal Fee:</strong> ₱{{mealFee}}</p>
-        {{/if}}
-
-        <h4 class="mt-3"><strong>Total:</strong> ₱{{total}}</h4>
-
-        <hr>
-
-        <div class="text-center mt-4">
-            <a href="/reservations/list" class="btn btn-primary btn-lg">Go to My Bookings</a>
-            <a href="/flights/search" class="btn btn-secondary btn-lg">Book Another Flight</a>
-        </div>
-    </div>
+  <div class="mt-3 text-center">
+    <a href="/reservations/my-bookings" class="btn btn-primary">Go to My Bookings</a>
+    <a href="/flights/Flights" class="btn btn-secondary">Book another flight</a>
+  </div>
 </div>
