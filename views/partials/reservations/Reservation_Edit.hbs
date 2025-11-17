@@ -15,40 +15,38 @@
   </div>
 
   <h4>Seat Selection</h4>
-  <p>Current seat: <strong>{{reservation.seat}}</strong></p>
+  <p>Current seat: <strong class="text-primary">{{reservation.seat}}</strong></p>
+  <p class="text-muted small">Click on an available seat (green) to select a new one</p>
 
   <div class="mb-3">
     {{#each seatRows}}
-<div class="row justify-content-center mb-2">
-
-    <div class="col-auto">
-        {{#each this.aisle1}}
-        <button type="button"
-            class="btn seat 
+      <div class="row justify-content-center mb-2">
+        <div class="col-auto">
+          {{#each this.aisle1}}
+            <button type="button"
+              class="btn seat 
                 {{#if this.isReserved}}reserved{{else}}available{{/if}}
                 {{#if this.isSelected}}selected{{/if}}"
-            data-seat="{{this.id}}"
-            {{#if this.isReserved}}disabled{{/if}}>
-            {{this.id}}
-        </button>
-        {{/each}}
-    </div>
-
-    <div class="col-auto">
-        {{#each this.aisle2}}
-        <button type="button"
-            class="btn seat 
+              data-seat="{{this.id}}"
+              {{#if this.isReserved}}disabled{{/if}}>
+              {{this.id}}
+            </button>
+          {{/each}}
+        </div>
+        <div class="col-auto">
+          {{#each this.aisle2}}
+            <button type="button"
+              class="btn seat 
                 {{#if this.isReserved}}reserved{{else}}available{{/if}}
                 {{#if this.isSelected}}selected{{/if}}"
-            data-seat="{{this.id}}"
-            {{#if this.isReserved}}disabled{{/if}}>
-            {{this.id}}
-        </button>
-        {{/each}}
-    </div>
-
-</div>
-{{/each}}
+              data-seat="{{this.id}}"
+              {{#if this.isReserved}}disabled{{/if}}>
+              {{this.id}}
+            </button>
+          {{/each}}
+        </div>
+      </div>
+    {{/each}}
   </div>
 
   <input type="hidden" id="seat" name="seat" value="{{reservation.seat}}">
@@ -81,45 +79,126 @@
   </div>
 </form>
 
+<style>
+.seat{ width:50px; height:50px; margin:5px; }
+
+.seat.available{ background:#f8f9fa;border:1px solid #dee2e6; }
+
+.seat.reserved{ background:#dc3545;color:#fff; pointer-events:none; }
+
+.seat.selected{ background:green;color:#fff; }
+
+.seat:disabled {
+  cursor: not-allowed;
+}
+</style>
+
 <script>
-$(function(){
+document.addEventListener('DOMContentLoaded', function() {
   let readyToSubmit = false;
-
-  $(document).on("click", ".seat.available", function(){
-    $(".seat").removeClass("selected");
-    $(this).addClass("selected");
-    $("#seat").val($(this).data("seat"));
+  const currentSeat = "{{reservation.seat}}";
+  
+  // Initialize - mark current seat as selected on page load
+  const currentSeatElement = document.querySelector(`.seat[data-seat="${currentSeat}"]`);
+  if (currentSeatElement) {
+    currentSeatElement.classList.add('selected');
+  }
+  
+  // Seat selection handler
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('seat') && 
+        e.target.classList.contains('available') && 
+        !e.target.disabled) {
+      
+      // Remove selected class from all seats
+      document.querySelectorAll('.seat').forEach(seat => {
+        seat.classList.remove('selected');
+      });
+      
+      // Add selected class to clicked seat
+      e.target.classList.add('selected');
+      
+      // Update hidden input with selected seat
+      const selectedSeat = e.target.getAttribute('data-seat');
+      document.getElementById('seat').value = selectedSeat;
+      
+      console.log('Seat selected:', selectedSeat);
+      
+      // Reset submit state
+      readyToSubmit = false;
+      document.getElementById('summary').classList.add('d-none');
+    }
   });
-
-  $("#editReservationForm").on("submit", function(e){
+  
+  // Form submission handler
+  document.getElementById('editReservationForm').addEventListener('submit', function(e) {
     if (!readyToSubmit) {
       e.preventDefault();
-      const meal = $("#meal").val();
-      const seat = $("#seat").val();
-      const baggage = $("#baggage").val();
-
+      
+      const meal = document.getElementById('meal').value;
+      const seat = document.getElementById('seat').value;
+      const baggage = document.getElementById('baggage').value;
+      const summary = document.getElementById('summary');
+      
+      // Validation
       if (!seat) {
-        $("#summary").removeClass("d-none alert-info").addClass("alert-danger").html("Select a seat first.");
+        summary.classList.remove('d-none', 'alert-info');
+        summary.classList.add('alert-danger');
+        summary.innerHTML = 'Please select a seat first.';
+        summary.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
-
+      
+      // Price calculation
       let baseFare = 5000;
       let baggageFee = 0;
+      let mealFee = 0;
+      
       switch (baggage) {
-        case "small": baggageFee = 500; break;
-        case "medium": baggageFee = 1000; break;
-        case "large": baggageFee = 1500; break;
+        case 'small': baggageFee = 500; break;
+        case 'medium': baggageFee = 1000; break;
+        case 'large': baggageFee = 1500; break;
       }
-      let mealFee = meal !== "standard" ? 300 : 0;
+      
+      if (meal && meal !== 'standard') {
+        mealFee = 300;
+      }
+      
       const total = baseFare + baggageFee + mealFee;
-
-      $("#summary").removeClass("d-none alert-danger").addClass("alert-info")
-        .html(`<h5>Updated Summary</h5>Seat: ${seat}<br>Baggage: ${baggage}<br>Total: ₱${total.toLocaleString()}<br><small>Click Save Changes again to confirm.</small>`);
-
+      
+      // Show summary
+      summary.classList.remove('d-none', 'alert-danger');
+      summary.classList.add('alert-info');
+      summary.innerHTML = `
+        <h5> Updated Reservation Summary</h5>
+        <strong>Seat:</strong> ${seat}<br>
+        <strong>Meal:</strong> ${meal}<br>
+        <strong>Baggage:</strong> ${baggage}<br>
+        <strong>Baggage Fee:</strong> ₱${baggageFee.toLocaleString()}<br>
+        <strong>Meal Fee:</strong> ₱${mealFee.toLocaleString()}<br>
+        <hr>
+        <h4>Total: ₱${total.toLocaleString()}</h4>
+        <small class="text-muted">Click <strong>Save Changes</strong> again to confirm your updates.</small>
+      `;
+      
+      summary.scrollIntoView({ behavior: 'smooth', block: 'center' });
       readyToSubmit = true;
-      return;
+      return false;
     }
+    
+    // If readyToSubmit is true, form will submit normally
     return true;
+  });
+  
+  // Reset readyToSubmit if user changes meal or baggage
+  document.getElementById('meal').addEventListener('change', function() {
+    readyToSubmit = false;
+    document.getElementById('summary').classList.add('d-none');
+  });
+  
+  document.getElementById('baggage').addEventListener('change', function() {
+    readyToSubmit = false;
+    document.getElementById('summary').classList.add('d-none');
   });
 });
 </script>

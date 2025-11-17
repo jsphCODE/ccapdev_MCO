@@ -17,14 +17,14 @@
           </p>
 
           <div class="btn-group">
-            <button class="btn btn-primary btn-sm view-detail" data-id="{{this._id}}">View Details</button>
-            {{#if (eq this.status 'succeed')}}
-              <a class="btn btn-warning btn-sm" href="/reservations/{{this._id}}/edit">Edit</a>
-              <form action="/reservations/{{this._id}}/cancel" method="POST" style="display:inline;">
-                <button class="btn btn-danger btn-sm" onclick="return confirm('Cancel reservation?')">Cancel</button>
-              </form>
-            {{/if}}
-          </div>
+  <button class="btn btn-primary btn-sm view-detail" data-id="{{this._id}}">View Details</button>
+  {{#if (eq this.status 'succeed')}}
+    <a class="btn btn-warning btn-sm" href="/reservations/{{this._id}}/edit">Edit</a>
+    <form action="/reservations/{{this._id}}/cancel" method="POST" style="display:inline;">
+      <button class="btn btn-danger btn-sm" onclick="return confirm('Cancel reservation?')">Cancel</button>
+    </form>
+  {{/if}}
+</div>
         </div>
       </div>
     {{/each}}
