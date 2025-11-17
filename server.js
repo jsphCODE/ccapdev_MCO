@@ -35,7 +35,11 @@ const hbs = exphbs.create({
         },
         eq: function (a, b) {
             return a === b;
-        }
+        },
+        
+        inc: function (value) {
+            return parseInt(value) + 1;
+        },
     }
 });
 
@@ -429,6 +433,7 @@ app.listen(PORT, async () => {
     }
 
 });
+
 
 
 
