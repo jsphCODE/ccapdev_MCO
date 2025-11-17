@@ -64,7 +64,6 @@ app.use(express.urlencoded({ extended: true }));
 //==================
 
 //SeatMap
-//SeatMap
 function generateSeatMap(flight, reservedSeats = []) {
   const ROWS = 15;  
   const LETTERS = ["A", "B", "C", "D", "E", "F"];  
@@ -128,7 +127,13 @@ app.get('/profile/:username', async (req, res) => {
         res.render('partials/users/profile' , {Title : 'Your Profile Page', user}); // Shows profile page
     }
     else {
-        res.status(404).send('User not found.');
+        res.render('error', { //Renders error page with title
+            Title: 'User Not Found',
+            errorCode: 404, //Error code
+            errorMsg: "User not found. It seems that you are a new user. Please register for an account!", //Error message
+            errorLink: "/register", //Link for the button
+            errorBtnTxt: "Register Here" //Text for the button to display
+        });
     }
     
 });
@@ -181,7 +186,7 @@ app.get('/logout', async (req, res) => {
     res.render('initial', {Title : 'Home Page'});
 });
 
-//Route for getting one user by username (only works if typed as URL, TO BE IMPLEMENTED PROPERLY IN PHASE 3)
+//Route for getting one user by username (TO BE IMPLEMENTED PROPERLY IN PHASE 3)
 app.get('/edit-profile/:username', async (req, res) =>{
     const findUser = await User.findOne({ username: req.params.username }).lean(); //Searches for a user under the specified username via URL
     //If user if found, display in an 'edit profile' form
@@ -273,7 +278,6 @@ app.get("/search_flight", async (req, res) => {
         res.status(500).send("Error searching flights");
     }
 });
-
 
 
 //========================
@@ -438,6 +442,7 @@ app.get("/reservations/:id/summary", async (req, res) => {
     console.error(err); res.status(500).send("Error loading summary");
   }
 });
+
 //====================
 
 //STARTING UP SERVER
@@ -526,9 +531,8 @@ app.listen(PORT, async () => {
                 price: 150
             }
         ]);
+        console.log('Initial flights inserted into database.');
     }
-    
-
 });
 
 
