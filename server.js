@@ -40,6 +40,15 @@ const hbs = exphbs.create({
         inc: function (value) {
             return parseInt(value) + 1;
         },
+        formatDate: function (date) {
+            if (!date) return "";
+            const d = new Date(date);
+            return d.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            });
+        }
     }
 });
 
@@ -433,6 +442,7 @@ app.listen(PORT, async () => {
     }
 
 });
+
 
 
 
