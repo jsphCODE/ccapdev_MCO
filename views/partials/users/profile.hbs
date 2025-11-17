@@ -29,8 +29,9 @@
         <a href="/edit-profile/{{user.username}}" class="btn btn-primary">Edit Profile</a>
         <a href="/logout" class="btn btn-danger">Logout</a>
         <a href="/reservationList" class="btn btn-primary">Go to <b>Reservation List</b></a>
-        {{#if user.role == 'Admin'}}
+        {{#if user.isAdmin}} <!-- If true, show admin settings -->
         <a href="/flights/Flights" class="btn btn-warning"><b>Manage Flights</b></a>
         <a href="/reservations/Reservation_list" class="btn btn-warning"><b>Manage Reservations</b></a>
+        {{/if}}
     </div>
 </div>
