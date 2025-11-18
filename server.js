@@ -230,21 +230,14 @@ app.post('/edit-profile/:username', async (req, res) => {
 //========================
 
 // Route to show flight search page
-app.get('/searchFlight', async (req, res) => {
-  try {
-      // Fetch flights from database
-      const flights = await Flight.find().lean();
-
-      // Render your Handlebars template
-      res.render('partials/flights/search_flight', { 
-          Title: 'Flight Search',
-          flights
-      });
-  } catch (err) {
-      console.error(err);
-      res.status(500).send('Server Error');
-  }
+app.get('/searchFlight', (req, res) => {
+    res.render('partials/flights/search_flight', { 
+        Title: 'Flight Search',
+        flights: [],
+        search: {}
+    });
 });
+
 
 //route to get flight search results
 app.get("/search_flight", async (req, res) => {
@@ -252,10 +245,10 @@ app.get("/search_flight", async (req, res) => {
         const { origin, destination, departureDate } = req.query;
 
         let flights = [];
+
         if (origin && destination && departureDate) {
-            const dayOfWeek = new Date(departureDate).toLocaleDateString("en-US", {
-                weekday: "long"
-            });
+            const dayOfWeek = new Date(departureDate)
+                .toLocaleDateString("en-US", { weekday: "long" });
 
             flights = await Flight.find({
                 origin,
@@ -266,13 +259,10 @@ app.get("/search_flight", async (req, res) => {
 
         res.render("partials/flights/search_flight", { 
             Title: "Flight Search",
-            flights,      
-            search: {      
-                origin,
-                destination,
-                departureDate
-            }
+            flights,
+            search: { origin, destination, departureDate }
         });
+
     } catch (err) {
         console.error(err);
         res.status(500).send("Error searching flights");
