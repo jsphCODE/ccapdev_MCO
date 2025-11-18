@@ -1,0 +1,38 @@
+<div class="card p-4">
+    <h4 class="mb-4">Flights List</h4>
+    <table class="table table-bordered table-striped text-center">
+        <thead class="table-light">
+            <tr>
+                <th>Aircraft and Flight Number</th>
+                <th>Origin and Destination</th>
+                <th>Schedule</th>
+                <th>Price</th>
+                <th>Capacity</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="flightTable">
+        {{#each flights}}
+        <tr>
+            <td>{{aircraft}} {{flightNumber}}</td>
+            <td>{{origin}} → {{destination}}</td>
+            <td>{{daysOfWeek}}<br>{{departure}}<br>{{arrival}}</td>
+            <td>{{price}}</td>
+            <td>{{capacity}}</td>
+            <td>
+            <br>
+            <a href="/manage-flights/edit/{{flightNumber}}" class="btn btn-primary">Edit Flight</a>
+            <br>
+            <!-- Add a confirmation message that pops up, giving the option to really delete the flight -->
+            <a href="/manage-flights/delete-{{flightNumber}}" id='delete-confirm' class="btn btn-danger">Delete Flight</a>
+            <p id="deleteMsg"></p>
+            </td>
+        </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<div style="text-align: center">
+    <a href="/manage-flights/add" class="btn btn-success">Add a Flight</button>
+</div>

@@ -1,0 +1,165 @@
+<div class="card p-4 mb-5">
+    <h4 class="text-center">Add a Flight</h4>
+    <form id="flightForm" class="row g-3" action="/manage-flights/add" method="POST">
+
+    <div class="col-md-4">
+        <label class="form-label">Flight Number</label>
+        <input type="text" id="flightNumber" class="form-control" name="flightNumber" required></input>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">Origin</label>
+        <select id="origin" class="form-select" name="origin" required>
+            <option value="">Select an Origin</option>
+            {{#each destinations}}
+                <option value="{{this}}">{{this}}</option>
+            {{/each}}
+        </select>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">Destination</label>
+        <select id="destination" class="form-select" name="destination" required>
+            <option value="">Select a Destination</option>
+            {{#each destinations}}
+                <option value="{{this}}">{{this}}</option>
+            {{/each}}
+        </select>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">Schedule</label>
+        <select id="daysOfWeek" class="form-select" name="daysOfWeek" multiple required size="3">
+            <option value="">Select Days</option>
+            <option>Monday</option>
+            <option>Tuesday</option>
+            <option>Wednesday</option>
+            <option>Thursday</option>
+            <option>Friday</option>
+            <option>Saturday</option>
+            <option>Sunday</option>
+        </select>
+
+        <label class="form-label">Departure Time</label>
+        <input type="time" id="departure" class="form-control mt-2" name="departure" required></input>
+
+        <label class="form-label">Arrival Time</label>
+        <input type="time" id="arrival" class="form-control mt-2" name="arrival" required></input>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">Aircraft Type</label>
+        <select id="aircraft" class="form-select" name="aircraft" required>
+            <option value="">Select an Aircraft</option>
+            {{#each aircrafts}}
+                <option value="{{this}}">{{this}}</option>
+            {{/each}}
+        </select>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">Seat Capacity</label>
+        <input type="number" id="capacity" class="form-control" min="1" name="capacity" required></input>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">Price</label>
+        <input type="number" id="price" class="form-control" name="price" required></input>
+    </div>
+
+    <div class="col-12 d-flex justify-content-end">
+        <button type="submit" class="btn btn-success me-2">Add Flight</button>
+    </div>
+    </form>
+{{!-- <script>
+    // ✔ Accept from Express backend
+    // const destinations = {{{json destinations}}};
+    // const aircraftByOrigin = {{{json aircraftByOrigin}}};
+
+    // $("#origin").on("change", function() {
+    //    const origin = $(this).val();
+    //    const destSelect = $("#destination");
+    //    const aircraftSelect = $("#aircraft");
+
+        destSelect.empty().append('<option value="">Select Destination</option>');
+        aircraftSelect.empty().append('<option value="">Select Aircraft</option>');
+
+    //    if (destinations[origin]) {
+    //        destinations[origin].forEach(dest => {
+                destSelect.append(`<option value="${dest}">${dest}</option>`);
+            });
+        }
+
+    //    if (aircraftByOrigin[origin]) {
+    //        aircraftByOrigin[origin].forEach(plane => {
+                aircraftSelect.append(`<option value="${plane}">${plane}</option>`);
+            });
+        }
+    });
+
+    // let flights = [];
+
+    // $("#flightForm").on("submit", function(e) {
+        e.preventDefault();
+
+    //     const flight = {
+    //        number: $("#flightNumber").val(),
+    //        origin: $("#origin").val(),
+    //        destination: $("#destination").val(),
+    //        schedule: $("#dayOfWeek").val() + " " +
+    //                  $("#departureTime").val() + "-" +
+    //                  $("#arrivalTime").val(),
+    //        aircraft: $("#aircraft").val(),
+    //        capacity: $("#capacity").val()
+        };
+
+    //    const index = flights.findIndex(f => f.number === flight.number);
+        if (index >= 0) flights[index] = flight;
+        else flights.push(flight);
+
+    //    renderFlights();
+        this.reset();
+    });
+
+    // function renderFlights() {
+    //    let rows = "";
+    //    flights.forEach((f, i) => {
+            rows += `
+                <tr>
+                    <td>${f.number}</td>
+                    <td>${f.origin}</td>
+                    <td>${f.destination}</td>
+                    <td>${f.schedule}</td>
+                    <td>${f.aircraft}</td>
+                    <td>${f.capacity}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-2" onclick="editFlight(${i})">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteFlight(${i})">Delete</button>
+                    </td>
+                </tr>`;
+        });
+    //    $("#flightTable").html(rows);
+    }
+
+    // function editFlight(index) {
+    //    const f = flights[index];
+
+    //    $("#flightNumber").val(f.number);
+    //    $("#origin").val(f.origin).trigger("change");
+
+    //    setTimeout(() => {
+    //        $("#destination").val(f.destination);
+    //        $("#aircraft").val(f.aircraft);
+        }, 100);
+
+    //    $("#capacity").val(f.capacity);
+    }
+
+    // function deleteFlight(index) {
+    //    if (confirm("Delete this flight?")) {
+            flights.splice(index, 1);
+            renderFlights();
+        }
+    }
+</script> --}}
+</div>
