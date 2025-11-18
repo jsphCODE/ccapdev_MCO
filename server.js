@@ -269,6 +269,32 @@ app.get("/search_flight", async (req, res) => {
     }
 });
 
+// Route to render admin_flightcontrol page
+app.get('/flights/manage_flight', (req, res) => {
+    // Data for the form
+    const destinations = {
+        "NAIA": ["Tokyo", "Singapore", "Hong Kong"],
+        "Clark": ["Manila", "Seoul", "Bangkok"],
+        "Cebu": ["Manila", "New Zealand", "Beijing"],
+        "Davao": ["Manila", "Taipei", "Seoul"]
+    };
+
+    const aircraftByOrigin = {
+        "NAIA": ["Airbus A320", "Boeing 737"],
+        "Clark": ["ATR 72", "Airbus A320"],
+        "Cebu": ["Lockheed F-22", "Airbus A321"],
+        "Davao": ["Airbus A320", "Batwing"]
+    };
+
+    res.render('partials/flights/Admin_flightcontrol', { 
+        Title: 'Flights Management',
+        origins: Object.keys(destinations),
+        destinations,
+        aircraftByOrigin
+    });
+});
+
+
 
 //========================
 //Reservation List Routes
