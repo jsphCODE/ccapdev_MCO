@@ -230,16 +230,16 @@ app.post('/edit-profile/:username', async (req, res) => {
 //========================
 
 // Route to show flight search page
-app.get('/searchFlight', (req, res) => {
-    res.render('partials/flights/search_flight', { 
-        Title: 'Flight Search',
-        flights: [],
-        search: {}
-    });
-});
+// app.get('/search-flight', (req, res) => {
+//     res.render('partials/flights/search-flight', { 
+//         Title: 'Flight Search',
+//         flights: [],
+//         search: {}
+//     });
+// });
 
 //route to get flight search results
-app.get("/search_flight", async (req, res) => {
+app.get("/search-flight", async (req, res) => {
     try {
         const { origin, destination, departureDate } = req.query;
 
@@ -256,7 +256,7 @@ app.get("/search_flight", async (req, res) => {
             }).lean();
         }
 
-        res.render("partials/flights/search_flight", { 
+        res.render("partials/flights/search-flight", { 
             Title: "Flight Search",
             flights,
             search: { origin, destination, departureDate }
@@ -297,17 +297,22 @@ app.get('/manage-flights', async (req, res) => {
 
 //Route for loading registration page
 app.get('/manage-flights/add', async (req, res) => {
-    const destinations = { //Dictionary for origin and destinations
+   const destinations = { //Dictionary for origin and destinations
         "NAIA": ["Tokyo", "Singapore", "Hong Kong"],
         "Clark": ["Manila", "Seoul", "Bangkok"],
         "Cebu": ["Manila", "New Zealand", "Beijing"],
         "Davao": ["Manila", "Taipei", "Seoul"]
         };
 
-    const aircrafts = ["Airbus A320", "Airbus A321", "Boeing 737", "ATR 72", "Lockheed F-22"]
+    const aircraftByOrigin = { //Dictionary for aircrafts, by origin
+        "NAIA": ["Airbus A320", "Boeing 737"],
+        "Clark": ["ATR 72", "Airbus A320"],
+        "Cebu": ["Lockheed F-22", "Airbus A321"],
+        "Davao": ["Airbus A320", "Batwing"]
+        };
 
     res.render('partials/flights/add-flight' , {Title : 'Add a Flight' // Shows registration form
-        , destinations, aircrafts
+        , origins: Object.keys(destinations), destinations, aircraftByOrigin
     }); 
 });
 
@@ -333,22 +338,16 @@ app.get('/manage-flights/edit/:flightNumber', async (req, res) => {
         "Cebu": ["Manila", "New Zealand", "Beijing"],
         "Davao": ["Manila", "Taipei", "Seoul"]
         };
-        const chosenOrigin = destinations;
-        delete chosenOrigin[findFlight.origin];
 
-        // const aircraftByOrigin = { //Dictionary for aircrafts, by origin
-        // "NAIA": ["Airbus A320", "Boeing 737"],
-        // "Clark": ["ATR 72", "Airbus A320"],
-        // "Cebu": ["Lockheed F-22", "Airbus A321"],
-        // "Davao": ["Airbus A320", "Batwing"]
-        // };
-        // const chosenAircraft = aircraftByOrigin;
-        // delete chosenAircraft.findFlight.origin;
-
-        const aircrafts = ["Airbus A320", "Airbus A321", "Boeing 737", "ATR 72", "Lockheed F-22"]
+        const aircraftByOrigin = { //Dictionary for aircrafts, by origin
+        "NAIA": ["Airbus A320", "Boeing 737"],
+        "Clark": ["ATR 72", "Airbus A320"],
+        "Cebu": ["Lockheed F-22", "Airbus A321"],
+        "Davao": ["Airbus A320", "Batwing"]
+        };
 
       res.render('partials/flights/edit-flight', {Title: 'Edit Flight', findFlight  //Provides existing flight's info into the form
-        , origins: Object.keys(destinations), destinations, chosenOrigin, aircrafts
+        , origins: Object.keys(destinations), destinations, aircraftByOrigin
         // , aircraftByOrigin, chosenAircraft
     });
     }
@@ -358,7 +357,7 @@ app.get('/manage-flights/edit/:flightNumber', async (req, res) => {
             Title: 'Flight Not Found',
             errorCode: 404, //Error code
             errorMsg: "Flight not found. Perhaps you mean to add this flight to the flight list?", //Error message
-            errorLink: "partials/flights/flight-list", //Link for the button
+            errorLink: "/manage-flights", //Link for the button
             errorBtnTxt: "Back to Flight List" //Text for the button to display
         });
     }
@@ -379,13 +378,33 @@ app.post('/manage-flights/edit/:flightNumber', async (req, res) => {
             Title: 'Flight Not Found',
             errorCode: 404, //Error code
             errorMsg: "Flight not found. Perhaps you mean to add this flight to the flight list?", //Error message
-            errorLink: "partials/flights/flight-list", //Link for the button
+            errorLink: "/manage-flights", //Link for the button
             errorBtnTxt: "Back to Flight List" //Text for the button to display
         });
     }
 });
 
 // Route for deleting a flight in the flight list
+app.get('/manage-flights/delete-:flightNumber', async (req,res) =>{
+    const flightNo = req.params.flightNumber;
+    const deletedFlight = await Flight.findOneAndDelete({ flightNumber: flightNo }); //Find the flight based on flight number and deletes it from the DB
+
+    //If flight is found to be deleted, show confirmation page
+    if (deletedFlight) {
+        res.render('partials/flights/confirmation', {Title: 'Flight Deletion Confirmation', 
+        confirmMsg: "deleted", flightNo}); //Renders the confirmaton page with corresponding message upon successful edit of flight
+    }
+
+    else{
+        res.render('error', { //Renders error page with title
+            Title: 'Flight Not Found',
+            errorCode: 404, //Error code
+            errorMsg: "Flight not found.", //Error message
+            errorLink: "/manage-flights", //Link for the button
+            errorBtnTxt: "Back to Flight List" //Text for the button to display
+        });
+    }
+});
 
 //========================
 //Reservation List Routes
