@@ -1,7 +1,7 @@
 <div class="container mt-4">
   <div class="card">
     <div class="card-body">
-      <h5 class="card-title">{{formData.flightNumber}} has been {{confirmMsg}}.</h5>
+      <h5 class="card-title">{{#if formData.flightNumber}} {{formData.flightNumber}} {{else}} {{flightNo}}  {{/if}} has been {{confirmMsg}}.</h5>
       <a href="/manage-flights" class="btn btn-primary">Back to Flight List</a>
     </div>
   </div>

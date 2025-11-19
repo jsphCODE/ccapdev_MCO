@@ -23,14 +23,28 @@
             <br>
             <a href="/manage-flights/edit/{{flightNumber}}" class="btn btn-primary">Edit Flight</a>
             <br>
-            <!-- Add a confirmation message that pops up, giving the option to really delete the flight -->
-            <a href="/manage-flights/delete-{{flightNumber}}" id='delete-confirm' class="btn btn-danger">Delete Flight</a>
-            <p id="deleteMsg"></p>
+            <a href="/manage-flights/delete-{{flightNumber}}" class="btn btn-danger">Delete Flight</a>
+            <br>
             </td>
         </tr>
         {{/each}}
         </tbody>
     </table>
+    {{!-- <script>
+        //Function for bringing up confirmation message when deleting a flight
+        // $("#delete-confirm").on("click", function() {
+        //    $("deleteMsg").html(`
+            <p><b>Are you sure you want to delete this flight?</b></p>
+            <a href="/manage-flights/delete-{{flightNumber}}" id='delete-confirm' class="btn btn-danger">Delete Flight</a>
+            <button id='back' class="btn btn-primary">Go Back</button>
+            `);
+        });
+
+        //When clicking the back button, removes delete confirmation message
+        $("#back").on("click", function() {
+            $("deleteMsg").empty();
+        });
+    </script> --}}
 </div>
 
 <div style="text-align: center">

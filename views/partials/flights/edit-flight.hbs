@@ -9,9 +9,10 @@
 
     <div class="col-md-4">
         <label class="form-label">Origin</label>
+        <p>Current Origin: {{findFlight.origin}}</p>
         <select id="origin" class="form-select" name="origin" required>
-            <option value="{{findFlight.origin}}">{{findFlight.origin}}</option>
-            {{#each chosenOrigin}}
+            <option value="">Select an Origin</option>
+            {{#each origins}}
                 <option value="{{this}}">{{this}}</option>
             {{/each}}
         </select>
@@ -19,8 +20,9 @@
 
     <div class="col-md-4">
         <label class="form-label">Destination</label>
+        <p>Current Destination: {{findFlight.destination}}</p>
         <select id="destination" class="form-select" name="destination" required>
-            <option value="{{findFlight.destination}}">{{findFlight.destination}}</option>
+            <option value="">Select a Destination</option>
         </select>
     </div>
 
@@ -46,10 +48,7 @@
     <div class="col-md-4">
         <label class="form-label">Aircraft Type</label>
         <select id="aircraft" class="form-select" name="aircraft" required>
-            <option value="{{findFlight.aircraft}}">{{findFlight.aircraft}}</option>
-            {{#each aircrafts}}
-                <option value="{{this}}">{{this}}</option>
-            {{/each}}
+            <option value="">Select an Aircraft</option>
         </select>
     </div>
 
@@ -67,95 +66,30 @@
         <button type="submit" class="btn btn-success me-2">Edit Flight</button>
     </div>
     </form>
-{{!-- <script>
+<script>
     // ✔ Accept from Express backend
-    // const destinations = {{{json destinations}}};
-    // const aircraftByOrigin = {{{json aircraftByOrigin}}};
+    const destinations = {{{json destinations}}};
+    const aircraftByOrigin = {{{json aircraftByOrigin}}};
 
-    // $("#origin").on("change", function() {
-    //    const origin = $(this).val();
-    //    const destSelect = $("#destination");
-    //    const aircraftSelect = $("#aircraft");
+    //Function for loading the corresponding destinations and aircrafts, depending on the chosen origin
+    $("#origin").on("change", function() {
+        const origin = $(this).val();
+        const destSelect = $("#destination");
+        const aircraftSelect = $("#aircraft");
 
-        destSelect.empty().append('<option value="">Select Destination</option>');
-        aircraftSelect.empty().append('<option value="">Select Aircraft</option>');
-
-    //    if (destinations[origin]) {
-    //        destinations[origin].forEach(dest => {
+        //Gives destination options, depending on chosen origin
+        if (destinations[origin]) {
+            destinations[origin].forEach(dest => {
                 destSelect.append(`<option value="${dest}">${dest}</option>`);
             });
         }
 
-    //    if (aircraftByOrigin[origin]) {
-    //        aircraftByOrigin[origin].forEach(plane => {
+        //Gives aircraft options, depending on chosen origin
+        if (aircraftByOrigin[origin]) {
+            aircraftByOrigin[origin].forEach(plane => {
                 aircraftSelect.append(`<option value="${plane}">${plane}</option>`);
             });
         }
     });
-
-    // let flights = [];
-
-    // $("#flightForm").on("submit", function(e) {
-        e.preventDefault();
-
-    //     const flight = {
-    //        number: $("#flightNumber").val(),
-    //        origin: $("#origin").val(),
-    //        destination: $("#destination").val(),
-    //        schedule: $("#dayOfWeek").val() + " " +
-    //                  $("#departureTime").val() + "-" +
-    //                  $("#arrivalTime").val(),
-    //        aircraft: $("#aircraft").val(),
-    //        capacity: $("#capacity").val()
-        };
-
-    //    const index = flights.findIndex(f => f.number === flight.number);
-        if (index >= 0) flights[index] = flight;
-        else flights.push(flight);
-
-    //    renderFlights();
-        this.reset();
-    });
-
-    // function renderFlights() {
-    //    let rows = "";
-    //    flights.forEach((f, i) => {
-            rows += `
-                <tr>
-                    <td>${f.number}</td>
-                    <td>${f.origin}</td>
-                    <td>${f.destination}</td>
-                    <td>${f.schedule}</td>
-                    <td>${f.aircraft}</td>
-                    <td>${f.capacity}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning me-2" onclick="editFlight(${i})">Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteFlight(${i})">Delete</button>
-                    </td>
-                </tr>`;
-        });
-    //    $("#flightTable").html(rows);
-    }
-
-    // function editFlight(index) {
-    //    const f = flights[index];
-
-    //    $("#flightNumber").val(f.number);
-    //    $("#origin").val(f.origin).trigger("change");
-
-    //    setTimeout(() => {
-    //        $("#destination").val(f.destination);
-    //        $("#aircraft").val(f.aircraft);
-        }, 100);
-
-    //    $("#capacity").val(f.capacity);
-    }
-
-    // function deleteFlight(index) {
-    //    if (confirm("Delete this flight?")) {
-            flights.splice(index, 1);
-            renderFlights();
-        }
-    }
-</script> --}}
+</script>
 </div>
