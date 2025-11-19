@@ -35,10 +35,16 @@ const hbs = exphbs.create({
         eq: function (a, b) {
             return a === b;
         },
-        
+        ifeq: function(a, b, options) {
+            return a === b ? options.fn(this) : options.inverse(this);
+        },
+        ifneq: function(a, b, options) {
+            return a !== b ? options.fn(this) : options.inverse(this);
+        },
         inc: function (value) {
             return parseInt(value) + 1;
         },
+        
         formatDate: function (date) {
             if (!date) return "";
             const d = new Date(date);
@@ -658,6 +664,7 @@ app.listen(PORT, async () => {
         console.log('Initial flights inserted into database.');
     }
 });
+
 
 
 
