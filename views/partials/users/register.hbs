@@ -86,7 +86,7 @@
                 showError('#email');
                 }
 
-                if (phone && !/^(09|\+639)\d{9}$/.test(phone)) {
+                if (phone && !'^(09|\+639)\d{9}$'.test(phone)) {
                 errors.push('Please enter a valid phone number format (e.g. 09231234567 OR +639232134567).');
                 showError('#phone');
                 }
