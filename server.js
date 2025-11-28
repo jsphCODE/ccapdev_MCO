@@ -147,7 +147,7 @@ app.listen(PORT, async () => {
             {
                 flightNumber: "CEB800",
                 origin: "Cebu",
-                destination: "Seoul",
+                destination: "New Zealand",
                 daysOfWeek: ["Tuesday", "Friday"],
                 departure: "10:00",
                 arrival: "14:00",
@@ -165,6 +165,17 @@ app.listen(PORT, async () => {
                 aircraft: "Clark Airlines",
                 capacity: 200,
                 price: 150
+            },
+            {
+                flightNumber: "ABC120",
+                origin: "Davao",
+                destination: "Seoul",
+                daysOfWeek: ["Wednesday", "Saturday"],
+                departure: "08:00",
+                arrival: "13:00",
+                aircraft: "Davao Airlines",
+                capacity: 300,
+                price: 250
             }
         ]);
         console.log('Initial flights inserted into database.');
