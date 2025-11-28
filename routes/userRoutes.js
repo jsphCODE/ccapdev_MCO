@@ -14,18 +14,17 @@ router.post("/register", async (req, res) => {
     await newUser.save();
 
     //Save registered user's info into the session
-    req.session.userId = newUser._id;
     req.session.user = newUser;
 
     res.render("partials/users/confirmation", {
         Title: "Registration Confirmation",
-        formData: req.session.user
+        formData: req.body
     });
 });
 
 // Profile page
 router.get("/profile", async (req, res) => {
-    const user = await User.findOne({ username: req.session.user.username }).lean();
+    const user = await User.findOne({ username: req.session.user?.username }).lean();
     if (!user) {
         return res.render("error", {
             Title: "User Not Found",
@@ -80,12 +79,11 @@ router.post("/login", async (req, res) => {
     }
 
     //Save logged-in user's info into the session
-    req.session.userId = userCheck._id;
     req.session.user = userCheck;
 
     res.render("partials/users/confirmation", {
         Title: "Login Confirmation",
-        formData: req.session.user
+        formData: req.body
     });
 });
 
@@ -126,16 +124,13 @@ router.post("/edit-profile/:username", async (req, res) => {
         });
     }
 
-    //Checks if current session's user has been edited
-    if (updatedUser._id === req.session.userId) {
-        //Updates session user
-        req.session.user = updatedUser;
+    //Updates session user
+    req.session.user = updatedUser;
 
-        res.render("partials/users/confirmation", {
-            Title: "User Edit Confirmation",
-            formData: req.session.user
-        });
-    }
+    res.render("partials/users/confirmation", {
+        Title: "User Edit Confirmation",
+        formData: req.body
+    });
 });
 
 // Logout (destroys session user)

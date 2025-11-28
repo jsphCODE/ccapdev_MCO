@@ -70,7 +70,15 @@ router.get("/reservations/create/:flightId", async (req, res) => {
 
 // CREATE RESERVATION 
 router.post("/reservations/create", async (req, res) => {
-    if (!req.session.user) return res.redirect("/login");
+    if (!req.session.user) {
+        return res.render("error", {
+            Title: "User Not Found",
+            errorCode: 404,
+            errorMsg: "You are creating a reservation for no user. Please register or login!",
+            errorLink: "/",
+            errorBtnTxt: "Back to Home Page"
+        });
+    } 
 
     // Check if seat is already taken
     const seatTaken = await Reservation.findOne({
@@ -109,12 +117,20 @@ router.post("/reservations/create", async (req, res) => {
 // VIEW BOOKINGS
 router.get("/reservations/my-bookings", async (req, res) => {
     if (!req.session.user) return res.redirect("/login");
+    let isAdmin = req.session.user.isAdmin;
 
-    const reservations = await Reservation.find({
-        reserveUser: req.session.user.username
-    }).populate("flight").lean();
-
-    res.render("partials/reservations/Reservation_List", { reservations });
+    //If the current user is an Admin, show ALL reservations
+    if (isAdmin) {
+        const reservations = await Reservation.find({}).populate("flight").lean();
+        res.render("partials/reservations/Reservation_List", { reservations, isAdmin: true });
+    }
+    //Otherwise, show reservations of current user ONLY
+    else {
+        const reservations = await Reservation.find({
+            reserveUser: req.session.user.username
+            }).populate("flight").lean();
+            res.render("partials/reservations/Reservation_List", { reservations, isAdmin: false});
+    }
 });
 
 // EDIT RESERVATION
@@ -124,8 +140,8 @@ router.get("/reservations/:id/edit", async (req, res) => {
         .lean();
 
     if (!reservation) return res.status(404).send("Reservation not found");
-    if (reservation.reserveUser !== req.session.user?.username)
-        return res.status(403).send("Unauthorized access");
+    // if (reservation.reserveUser !== req.session.user?.username)
+    //     return res.status(403).send("Unauthorized access");
 
     const reservedSeats = await Reservation.find({
         flight: reservation.flight._id,
@@ -149,8 +165,8 @@ router.get("/reservations/:id/edit", async (req, res) => {
 router.post("/reservations/:id/edit", async (req, res) => {
     const reservation = await Reservation.findById(req.params.id).lean();
     if (!reservation) return res.status(404).send("Reservation not found");
-    if (reservation.reserveUser !== req.session.user?.username)
-        return res.status(403).send("Unauthorized");
+    // if (reservation.reserveUser !== req.session.user?.username)
+    //     return res.status(403).send("Unauthorized");
 
     // Check for seat change conflict
     if (reservation.seat !== req.body.seat) {
@@ -172,12 +188,23 @@ router.post("/reservations/:id/edit", async (req, res) => {
     res.redirect("/reservations/my-bookings");
 });
 
+//DELETE RESEVATION (admins only)
+router.post('/reservations/:id/delete', async (req, res) => {
+    const reservation = await Reservation.findById(req.params.id).lean();
+    if (!reservation) return res.status(404).send("Reservation not found");
+    // if (reservation.reserveUser !== req.session.user?.username)
+    //     return res.status(403).send("Unauthorized");
+
+    await Reservation.findByIdAndDelete(req.params.id);
+    res.redirect("/reservations/my-bookings");
+});
+
 // CANCEL RESERVATION
 router.post("/reservations/:id/cancel", async (req, res) => {
     const reservation = await Reservation.findById(req.params.id).lean();
     if (!reservation) return res.status(404).send("Reservation not found");
-    if (reservation.reserveUser !== req.session.user?.username)
-        return res.status(403).send("Unauthorized");
+    // if (reservation.reserveUser !== req.session.user?.username)
+    //     return res.status(403).send("Unauthorized");
 
     await Reservation.findByIdAndUpdate(req.params.id, { status: "canceled" });
     res.redirect("/reservations/my-bookings");
@@ -190,8 +217,8 @@ router.get("/reservations/:id/summary", async (req, res) => {
         .lean();
 
     if (!reservation) return res.status(404).send("Reservation not found");
-    if (reservation.reserveUser !== req.session.user?.username)
-        return res.status(403).send("Unauthorized");
+    // if (reservation.reserveUser !== req.session.user?.username)
+    //     return res.status(403).send("Unauthorized");
 
     let baseFare = 5000;
     let baggageFee = 0;
