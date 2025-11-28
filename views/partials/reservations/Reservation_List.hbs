@@ -18,9 +18,11 @@
 
           <div class="btn-group">
   <button class="btn btn-primary btn-sm view-detail" data-id="{{this._id}}">View Details</button>
+  <!-- Here! Can't seem to get the delete button to show up. It's method is already established in reservationRoutes.js -->
   {{#if isAdmin}}
     <a class="btn btn-danger btn-sm" href="/reservations/{{this._id}}/delete">Delete</a>
   {{/if}}
+  <!-- Here! Can't seem to get the delete button to show up. It's method is already established in reservationRoutes.js --> 
   {{#if (eq this.status 'succeed')}}
     <a class="btn btn-warning btn-sm" href="/reservations/{{this._id}}/edit">Edit</a>
     <form action="/reservations/{{this._id}}/cancel" method="POST" style="display:inline;">
@@ -73,3 +75,4 @@ $(function(){
   });
 });
 </script>
+
