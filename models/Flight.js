@@ -58,6 +58,12 @@ const FlightSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+
+    availableSeats: {
+        type: Number,
+        required: true,
+        min: 0
+    },
     
     price: {
         type: Number,
@@ -67,3 +73,4 @@ const FlightSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model('Flight', FlightSchema);
+
