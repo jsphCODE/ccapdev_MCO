@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
+const bcrypt = require('bcrypt');
 
 // Register page
 router.get("/register", (req, res) => {
@@ -12,22 +13,26 @@ router.post("/register", async (req, res) => {
     const newUser = new User(req.body);
     await newUser.save();
 
+    //Save registered user's info into the session
+    req.session.userId = newUser._id;
+    req.session.user = newUser;
+
     res.render("partials/users/confirmation", {
         Title: "Registration Confirmation",
-        formData: req.body
+        formData: req.session.user
     });
 });
 
 // Profile page
-router.get("/profile/:username", async (req, res) => {
-    const user = await User.findOne({ username: req.params.username }).lean();
+router.get("/profile", async (req, res) => {
+    const user = await User.findOne({ username: req.session.user.username }).lean();
     if (!user) {
         return res.render("error", {
             Title: "User Not Found",
             errorCode: 404,
-            errorMsg: "User not found. Please register for an account!",
-            errorLink: "/register",
-            errorBtnTxt: "Register Here"
+            errorMsg: "User not found. Please register or login!",
+            errorLink: "/",
+            errorBtnTxt: "Back to Home Page"
         });
     }
     res.render("partials/users/profile", { Title: "Your Profile Page", user });
@@ -38,7 +43,7 @@ router.get("/login", (req, res) => {
     res.render("partials/users/login", { Title: "User Login" });
 });
 
-// Login POST
+// Login user
 router.post("/login", async (req, res) => {
     const userCheck = await User.findOne({ username: req.body.username }).lean();
 
@@ -52,19 +57,35 @@ router.post("/login", async (req, res) => {
         });
     }
 
-    if (userCheck.email !== req.body.email || userCheck.password !== req.body.password) {
+    if (userCheck.email !== req.body.email) {
         return res.render("error", {
             Title: "Login Failed",
             errorCode: 404,
-            errorMsg: "Email and/or Password incorrect.",
+            errorMsg: "Email is incorrect.",
             errorLink: "/login",
             errorBtnTxt: "Back to Login Page"
         });
     }
 
+    let passwordCheck = bcrypt.compare(req.body.password, userCheck.password);
+
+    if (!passwordCheck) {
+        return res.render("error", {
+            Title: "Login Failed",
+            errorCode: 404,
+            errorMsg: "Password is incorrect.",
+            errorLink: "/login",
+            errorBtnTxt: "Back to Login Page"
+        });
+    }
+
+    //Save logged-in user's info into the session
+    req.session.userId = userCheck._id;
+    req.session.user = userCheck;
+
     res.render("partials/users/confirmation", {
         Title: "Login Confirmation",
-        formData: req.body
+        formData: req.session.user
     });
 });
 
@@ -105,15 +126,24 @@ router.post("/edit-profile/:username", async (req, res) => {
         });
     }
 
-    res.render("partials/users/confirmation", {
-        Title: "User Edit Confirmation",
-        formData: req.body
-    });
+    //Checks if current session's user has been edited
+    if (updatedUser._id === req.session.userId) {
+        //Updates session user
+        req.session.user = updatedUser;
+
+        res.render("partials/users/confirmation", {
+            Title: "User Edit Confirmation",
+            formData: req.session.user
+        });
+    }
 });
 
-// Logout (placeholder)
+// Logout (destroys session user)
 router.get("/logout", (req, res) => {
-    res.render("initial", { Title: "Home Page" });
+    req.session.destroy(() => {
+        res.render("initial", { Title: "Home Page" });
+    });
+    
 });
 
 module.exports = router;
