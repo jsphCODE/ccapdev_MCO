@@ -65,6 +65,12 @@ app.set('views', './views');
 //Middleware
 app.use(express.urlencoded({ extended: true }));
 
+app.use(session({
+  secret: 'ApdevAirisWicked2003',
+  resave: false,
+  saveUninitialized: true,
+}));
+
 //==================
 // Helper Functions
 //==================
@@ -181,6 +187,7 @@ app.listen(PORT, async () => {
         console.log('Initial flights inserted into database.');
     }
 });
+
 
 
 
