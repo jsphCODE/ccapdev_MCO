@@ -68,14 +68,28 @@ UserSchema.pre('save', async function (next) {
 
 // Edit profile vers.
 UserSchema.pre('findOneAndUpdate', async function (next) {
-  if (!this.isModified('password')) return next(); // Only hash if password is new or modified
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
+  const update = this.getUpdate()
+  // Check if the update operation specifically includes a 'password' field
+  // Mongoose usually wraps updates in a $set operator
+  const passwordToHash = update.$set?.password || update.password;
+
+  if (passwordToHash) {
+    try {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(passwordToHash, salt);
+            
+        // Update the password value in the update object itself
+        if (update.$set) {
+            update.$set.password = hashedPassword;
+        } else {
+        // Fallback for flat updates
+            update.password = hashedPassword;
+        }
+    } catch (err) {
+        return next(err);
+      }
   }
+  next();
 });
 
 module.exports = mongoose.model('User', UserSchema);
