@@ -141,7 +141,7 @@ app.listen(PORT, async () => {
                 departure: "20:00",
                 arrival: "23:00",
                 aircraft: "PAL",
-                capacity: 256,
+                capacity: 90,
                 price: 5000
             },
             {
@@ -152,7 +152,7 @@ app.listen(PORT, async () => {
                 departure: "10:00",
                 arrival: "14:00",
                 aircraft: "Cebu Pacific",
-                capacity: 180,
+                capacity: 90,
                 price: 4500
             },
             {
@@ -163,7 +163,7 @@ app.listen(PORT, async () => {
                 departure: "19:00",
                 arrival: "21:00",
                 aircraft: "Clark Airlines",
-                capacity: 200,
+                capacity: 90,
                 price: 150
             },
             {
@@ -174,7 +174,7 @@ app.listen(PORT, async () => {
                 departure: "08:00",
                 arrival: "13:00",
                 aircraft: "Davao Airlines",
-                capacity: 300,
+                capacity: 90,
                 price: 250
             }
         ]);

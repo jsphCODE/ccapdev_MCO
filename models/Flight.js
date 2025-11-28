@@ -59,6 +59,12 @@ const FlightSchema = new mongoose.Schema({
         trim: true
     },
     
+    availableSeats: {
+        type: Number,
+        required: true,
+        min: 0
+    },
+    
     price: {
         type: Number,
         required: true
