@@ -4,8 +4,14 @@
   "description": "This is a repository for Group 1's CCAPDEV Machine Project (MCO).",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "test": "jest --detectOpenHandles --forceExit",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "start": "node server.js",
+    "test:reservations": "jest tests/reservationRoutes.test.js",
+    "test:flights": "jest tests/flightRoutes.test.js",
+    "test:users": "jest tests/userRoutes.test.js"
+  },
   },
   "repository": {
     "type": "git",
@@ -26,3 +32,4 @@
   },
   "type": "commonjs"
 }
+
