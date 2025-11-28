@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const UserSchema = new mongoose.Schema({
     firstName: {
@@ -30,8 +31,7 @@ const UserSchema = new mongoose.Schema({
     phone: {
         type: String,
         //match: '^(09|\+639)\d{9}$',
-        trim: true,
-        unique: true
+        trim: true
     },
     
     username: {
@@ -44,7 +44,6 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        unique: true,
         trim: true
     },
 
@@ -54,5 +53,29 @@ const UserSchema = new mongoose.Schema({
         default: false
     }
 }, { timestamps: true });
+
+// Hash passwords before saving to DB, should reflect when viewing the DB
+UserSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next(); // Only hash if password is new or modified
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Edit profile vers.
+UserSchema.pre('findOneAndUpdate', async function (next) {
+  if (!this.isModified('password')) return next(); // Only hash if password is new or modified
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 module.exports = mongoose.model('User', UserSchema);
