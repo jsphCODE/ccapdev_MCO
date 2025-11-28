@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
+
 const Reservation = require("../models/Reservation");
 const Flight = require("../models/Flight");
 
-// Helper (copied)
+
 function generateSeatMap(flight, reservedSeats = []) {
     const ROWS = 15;
     const LETTERS = ["A", "B", "C", "D", "E", "F"];
@@ -29,13 +30,16 @@ function generateSeatMap(flight, reservedSeats = []) {
     return seatRows;
 }
 
-// Redirect convenience
+//booking a flight
 router.get("/reservations/create", (req, res) => {
     res.redirect("/flights/Flights");
 });
 
-// Load reservation form
+//make a reservation
 router.get("/reservations/create/:flightId", async (req, res) => {
+    if (!req.session.user)
+        return res.redirect("/login");
+
     const flight = await Flight.findById(req.params.flightId).lean();
     if (!flight) return res.status(404).send("Flight not found");
 
@@ -48,37 +52,56 @@ router.get("/reservations/create/:flightId", async (req, res) => {
 
     res.render("partials/reservations/Reservation_Form", {
         flight,
-        seatRows
+        seatRows,
+        loggedUser: req.session.user
     });
 });
 
-// Create reservation
+//show created reservation
 router.post("/reservations/create", async (req, res) => {
+    if (!req.session.user)
+        return res.redirect("/login");
+
     const newReservation = await Reservation.create({
-        reserveUser: req.body.reserveUser,
-        reserveEmail: req.body.reserveEmail,
+        reserveUser: req.session.user.username,
+        reserveEmail: req.session.user.email,
         passportNo: req.body.passportNo,
+
         flight: req.body.flight,
         seat: req.body.seat,
         meal: req.body.meal,
         baggage: req.body.baggage,
-        status: "succeed"
+
+        status: "succeed"   
     });
 
     res.redirect(`/reservations/${newReservation._id}/summary`);
 });
 
-// View all reservations
+//view bookings
 router.get("/reservations/my-bookings", async (req, res) => {
-    const reservations = await Reservation.find().populate("flight").lean();
+    if (!req.session.user)
+        return res.redirect("/login");
+
+    const reservations = await Reservation.find({
+        reserveUser: req.session.user.username
+    })
+        .populate("flight")
+        .lean();
+
     res.render("partials/reservations/Reservation_List", { reservations });
 });
 
-// Edit reservation
+//edit reservation
 router.get("/reservations/:id/edit", async (req, res) => {
     const reservation = await Reservation.findById(req.params.id)
         .populate("flight")
         .lean();
+
+    if (!reservation) return res.status(404).send("Reservation not found");
+
+    if (reservation.reserveUser !== req.session.user?.username)
+        return res.status(403).send("Unauthorized access");
 
     const reservedSeats = await Reservation.find({
         flight: reservation.flight._id,
@@ -98,8 +121,14 @@ router.get("/reservations/:id/edit", async (req, res) => {
     });
 });
 
-// Edit POST
+//show edited reservation
 router.post("/reservations/:id/edit", async (req, res) => {
+    const reservation = await Reservation.findById(req.params.id).lean();
+    if (!reservation) return res.status(404).send("Reservation not found");
+
+    if (reservation.reserveUser !== req.session.user?.username)
+        return res.status(403).send("Unauthorized");
+
     await Reservation.findByIdAndUpdate(req.params.id, {
         seat: req.body.seat,
         meal: req.body.meal,
@@ -109,28 +138,42 @@ router.post("/reservations/:id/edit", async (req, res) => {
     res.redirect("/reservations/my-bookings");
 });
 
-// Cancel reservation
+//cancel reservation
 router.post("/reservations/:id/cancel", async (req, res) => {
-    await Reservation.findByIdAndUpdate(req.params.id, { status: "cancelled" });
+    const reservation = await Reservation.findById(req.params.id).lean();
+    if (!reservation) return res.status(404).send("Reservation not found");
+
+    if (reservation.reserveUser !== req.session.user?.username)
+        return res.status(403).send("Unauthorized");
+
+    await Reservation.findByIdAndUpdate(req.params.id, {
+        status: "canceled"   
+    });
+
     res.redirect("/reservations/my-bookings");
 });
 
-// Summary page
+//summary
 router.get("/reservations/:id/summary", async (req, res) => {
     const reservation = await Reservation.findById(req.params.id)
         .populate("flight")
         .lean();
 
+    if (!reservation) return res.status(404).send("Reservation not found");
+
+    if (reservation.reserveUser !== req.session.user?.username)
+        return res.status(403).send("Unauthorized");
+
+    // FEES
     let baseFare = 5000;
     let baggageFee = 0;
     let mealFee = 0;
 
-    switch (reservation.baggage) {
-        case "small": baggageFee = 500; break;
-        case "medium": baggageFee = 1000; break;
-        case "large": baggageFee = 1500; break;
-    }
-    if (reservation.meal && reservation.meal !== "standard") mealFee = 300;
+    if (reservation.baggage === "small") baggageFee = 500;
+    if (reservation.baggage === "medium") baggageFee = 1000;
+    if (reservation.baggage === "large") baggageFee = 1500;
+
+    if (reservation.meal !== "standard") mealFee = 300;
 
     const total = baseFare + baggageFee + mealFee;
 
