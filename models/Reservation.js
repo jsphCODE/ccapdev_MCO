@@ -56,8 +56,20 @@ const ReservationSchema = new mongoose.Schema({
 
     status:{
         type: String,
-        enum: ['succeed','canceled'],
+        enum: ['succeed','canceled', 'checked-in'],
         default: 'succeed'
+    },
+
+    boardingPass:{
+        type: String,
+        required: true,
+        default: ''
+    },
+
+    //PNR Number (to be randomly generated for every reservation made)
+    pnr:{
+        type: String,
+        required: true
     }
 
 }, { timestamps: true });
