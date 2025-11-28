@@ -56,7 +56,6 @@
         <script>
             $(document).ready(function () {
                 $('#registerProfile').on('submit', function (e) {
-                e.preventDefault();
                 $('#registerMsg').empty();
                 clearErrors();
 
@@ -108,10 +107,10 @@
 
                 // Output result
                 if (errors.length > 0) {
-                $('#registerMsg').html(`<div class="error">${errors.join('<br>')}</div>`);
+                    e.preventDefault();
+                    $('#registerMsg').html(`<div class="error">${errors.join('<br>')}</div>`);
                 } else {
-                $('#registerMsg').html('<div class="success">Success!</div>');
-                this.submit();
+                    $('#registerMsg').html('<div class="success">Success!</div>');
                 }
                 });
 
@@ -125,4 +124,5 @@
             });
         </script>
     </form>
+
 </div>
