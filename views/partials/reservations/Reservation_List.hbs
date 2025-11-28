@@ -10,12 +10,17 @@
           <p><strong>Passenger:</strong> {{this.reserveUser}}</p>
           <p><strong>Seat:</strong> {{this.seat}}</p>
           <p><strong>Date:</strong> {{formatDate this.flight.schedule}}</p>
+          <p><strong>PNR:</strong> {{this.pnr}}</p>
           <p><strong>Status:</strong>
             <span class="badge {{#if (eq this.status 'succeed')}}bg-success{{else}}bg-danger{{/if}}">
               {{this.status}}
             </span>
           </p>
-
+          <!-- May not show up -->
+          {{#if (eq this.status 'checked-in')}}
+            <p><strong>Boarding Pass Number:</strong> {{this.boardingPass}}</p>
+          {{/if}}
+          <!-- May not show up -->
           <div class="btn-group">
   <button class="btn btn-primary btn-sm view-detail" data-id="{{this._id}}">View Details</button>
   <!-- Here! Can't seem to get the delete button to show up. It's method is already established in reservationRoutes.js -->
@@ -24,6 +29,7 @@
   {{/if}}
   <!-- Here! Can't seem to get the delete button to show up. It's method is already established in reservationRoutes.js --> 
   {{#if (eq this.status 'succeed')}}
+    <a class="btn btn-success btn-sm" href="/reservations/{{this._id}}/checkin">Check-In</a>
     <a class="btn btn-warning btn-sm" href="/reservations/{{this._id}}/edit">Edit</a>
     <form action="/reservations/{{this._id}}/cancel" method="POST" style="display:inline;">
       <button class="btn btn-danger btn-sm" onclick="return confirm('Cancel reservation?')">Cancel</button>
@@ -66,6 +72,7 @@ $(function(){
       <hr>
       <p><strong>Flight:</strong> ${r.flight.flightNumber}</p>
       <p><strong>Route:</strong> ${r.flight.origin} → ${r.flight.destination}</p>
+      <p><strong>PNR:</strong> ${r.pnr}</p>
       <p><strong>Seat:</strong> ${r.seat}</p>
       <p><strong>Meal:</strong> ${r.meal}</p>
       <p><strong>Baggage:</strong> ${r.baggage}</p>
@@ -75,4 +82,3 @@ $(function(){
   });
 });
 </script>
-

@@ -1,0 +1,16 @@
+<h1 class="mb-4">Reservation Check-In Form</h1>
+
+<p>Please fill up the following below to check-in.</p>
+<div class="flight-info mb-3 card p-3">
+    <form id="reservationCheckIn" action="/reservations/{{id}}/checkin" method="POST">
+    <div class="col-md-6 mb-3">
+      <label class="form-label">PNR</label>
+      <input type="text" name="pnr" class="form-control" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Last Name</label>
+      <input type="email" name="lastName" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg">Submit</button>
+    </form>
+</div>
