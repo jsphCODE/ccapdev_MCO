@@ -3,6 +3,28 @@ const router = express.Router();
 const Reservation = require("../models/Reservation");
 const Flight = require("../models/Flight");
 
+// Helper function to generate PNR for check-in
+function generatePNR() {
+  const length = 6;
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+// Helper function to generate boarding pass number upon successful check-in
+function generateBoardPass() {
+  const length = 13;
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 // Generate seat map based on flight capacity
 function generateSeatMap(flight, reservedSeats = []) {
     const capacity = flight.capacity || 90; // default to 90
@@ -108,7 +130,8 @@ router.post("/reservations/create", async (req, res) => {
         seat: req.body.seat,
         meal: req.body.meal,
         baggage: req.body.baggage,
-        status: "succeed"
+        status: "succeed",
+        pnr: generatePNR()
     });
 
     res.redirect(`/reservations/${newReservation._id}/summary`);
@@ -208,6 +231,35 @@ router.post("/reservations/:id/cancel", async (req, res) => {
 
     await Reservation.findByIdAndUpdate(req.params.id, { status: "canceled" });
     res.redirect("/reservations/my-bookings");
+});
+
+// RESERVATION CHECK-IN FORM
+router.get('/reservations/:id/checkin', async (req, res) => {
+    res.render('partials/reservations/Reservation_CheckIn_Form', { Title: "Check-In", id: req.params.id });
+});
+
+// RESERVATION CHECK-IN
+router.post('/reservations/:id/checkin', async (req, res) => {
+    const reservation = await Reservation.findById(req.params.id).lean();
+    if (!reservation) return res.status(404).send("Reservation not found");
+
+    let boardPassNum = generateBoardPass();
+
+    const checkIn = await Reservation.findByIdAndUpdate(req.params.id, {
+        status: 'checked-in',
+        boardingPass: boardPassNum,
+    });
+    
+    if (checkIn) {
+        res.render("partials/reservations/Reservation_CheckIn_Confirm", {flightNumber: reservation.flight.flightNumber,
+                                                                         pnr: reservation.pnr,
+                                                                         boardPassNum: boardPassNum
+        });
+    }
+    else {
+        return res.status(404).send("Error checking in.");
+    }
+    
 });
 
 // RESERVATION SUMMARY
