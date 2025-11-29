@@ -12,7 +12,6 @@
     "test:flights": "jest tests/flightRoutes.test.js",
     "test:users": "jest tests/userRoutes.test.js"
   },
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jsphCODE/ccapdev_MCO.git"

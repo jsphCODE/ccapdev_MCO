@@ -3,21 +3,34 @@ const router = express.Router();
 const Reservation = require("../models/Reservation");
 const Flight = require("../models/Flight");
 
-// ================== HELPERS ==================
+// HELPERS
 
 // Generate PNR
 function generatePNR() {
     const length = 6;
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-}
-
-// Generate Boarding Pass
-function generateBoardPass() {
+    let result = '';
+  
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+  
+    return result;
+  }
+  
+  // Generate Boarding Pass
+  function generateBoardPass() {
     const length = 13;
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-}
+    let result = '';
+  
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+  
+    return result;
+  }
+  
 
 // Generate Seat Map
 function generateSeatMap(flight, reservedSeats = []) {
@@ -51,7 +64,7 @@ function generateSeatMap(flight, reservedSeats = []) {
     return seatRows;
 }
 
-// ================== CREATE ==================
+// CREATE
 
 // Redirect shortcut
 router.get("/reservations/create", (req, res) => {
@@ -135,7 +148,7 @@ router.post("/reservations/create", async (req, res) => {
     res.redirect(`/reservations/${newReservation._id}/summary`);
 });
 
-// ================== LIST ==================
+// LIST
 
 router.get("/reservations/my-bookings", async (req, res) => {
     if (!req.session.user) return res.redirect("/login");
@@ -154,7 +167,7 @@ router.get("/reservations/my-bookings", async (req, res) => {
     });
 });
 
-// ================== EDIT ==================
+// EDIT
 
 router.get("/reservations/:id/edit", async (req, res) => {
 
@@ -210,7 +223,7 @@ router.post("/reservations/:id/edit", async (req, res) => {
     res.redirect("/reservations/my-bookings");
 });
 
-// ================== DELETE & CANCEL ==================
+// DELETE & CANCEL
 
 router.post("/reservations/:id/delete", async (req, res) => {
     await Reservation.findByIdAndDelete(req.params.id);
@@ -222,7 +235,7 @@ router.post("/reservations/:id/cancel", async (req, res) => {
     res.redirect("/reservations/my-bookings");
 });
 
-// ================== CHECK-IN ==================
+// CHECK-IN
 
 router.get('/reservations/:id/checkin', async (req, res) => {
     res.render('partials/reservations/Reservation_CheckIn_Form', {
@@ -253,7 +266,7 @@ router.post('/reservations/:id/checkin', async (req, res) => {
     });
 });
 
-// ================== SUMMARY ==================
+// SUMMARY
 
 router.get("/reservations/:id/summary", async (req, res) => {
 
