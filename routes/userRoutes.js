@@ -66,7 +66,7 @@ router.post("/login", async (req, res) => {
         });
     }
 
-    let passwordCheck = bcrypt.compare(req.body.password, userCheck.password);
+    let passwordCheck = await bcrypt.compare(req.body.password, userCheck.password);
 
     if (!passwordCheck) {
         return res.render("error", {
