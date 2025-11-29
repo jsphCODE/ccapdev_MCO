@@ -93,7 +93,8 @@ app.use("/", require("./routes/reservationRoutes"));
 
 app.use(express.static(__dirname));
 
-app.listen(PORT, async () => {
+if (require.main==module){
+    app.listen(PORT, async () => {
     console.log(`Server running at http://localhost:${PORT}`);
 
     //Inserting admin users if database is empty
@@ -188,13 +189,6 @@ app.listen(PORT, async () => {
     }
 });
 
+}
 
-
-
-
-
-
-
-
-
-
+module.exports = app;
