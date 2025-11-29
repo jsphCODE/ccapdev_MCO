@@ -9,6 +9,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const exphbs = require('express-handlebars');
 const path = require('path');
+const session = require('express-session')
 //Importing models
 const User = require('./models/User');
 const Flight = require('./models/Flight');
